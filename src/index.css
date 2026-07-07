@@ -1,0 +1,36 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', system-ui, sans-serif;
+
+  /* ブランドカラー：深緑を基調としたグリーン系パレット */
+  --color-brand-50: #eef5f3;
+  --color-brand-100: #d7e9e3;
+  --color-brand-200: #b0d3c7;
+  --color-brand-300: #82b8a7;
+  --color-brand-400: #549c86;
+  --color-brand-500: #397e6a;
+  --color-brand-600: #2e6b5e;
+  --color-brand-700: #26564c;
+  --color-brand-800: #1f453e;
+  --color-brand-900: #193733;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--color-brand-50);
+  color: #1f2937;
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-lg border border-brand-200 px-3 py-2 text-sm focus:border-brand-400 focus:outline-none;
+  }
+}
