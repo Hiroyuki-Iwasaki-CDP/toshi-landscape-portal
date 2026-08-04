@@ -21,7 +21,7 @@ function monthOf(yearMonth: string): number {
 
 export function PerformanceDashboardPage() {
   const { role } = useAuth()
-  const isMasked = role === 'staff'
+  const isMasked = role !== 'admin'
 
   const [periodType, setPeriodType] = useState<PeriodType>('monthly')
   const [fiscalYear, setFiscalYear] = useState<number>(FISCAL_YEAR_OPTIONS[FISCAL_YEAR_OPTIONS.length - 1])
@@ -90,7 +90,9 @@ export function PerformanceDashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-lg font-bold text-brand-800 sm:text-xl">実績ダッシュボード</h1>
-        <p className="text-sm text-gray-400">売上・人工・ごみ量の実績をフィルタして確認できます</p>
+        <p className="text-sm text-gray-400">
+          売上・人工・ごみ量の実績を、月別・年度別・物件（取引先）別・部門別に確認できます
+        </p>
       </div>
 
       <Card>
@@ -129,7 +131,7 @@ export function PerformanceDashboardPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-gray-500">取引先</label>
+            <label className="mb-1 block text-xs font-semibold text-gray-500">取引先（物件）</label>
             <select
               value={clientId}
               onChange={(e) => setClientId(e.target.value)}
@@ -185,7 +187,7 @@ export function PerformanceDashboardPage() {
             <Card title="部門別構成比">
               <DeptShareChart data={deptShareData} />
             </Card>
-            <Card title="取引先別売上ランキング">
+            <Card title="物件（取引先）別売上ランキング">
               <ClientRankingChart data={clientRankingData} />
             </Card>
           </div>

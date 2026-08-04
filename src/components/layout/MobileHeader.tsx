@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { Menu, X, LogOut } from 'lucide-react'
 import { navCategories } from './NavConfig'
 import { useAuth } from '../../context/AuthContext'
+import { ROLE_LABEL } from '../../types'
 
 export function MobileHeader() {
   const [open, setOpen] = useState(false)
@@ -34,7 +35,7 @@ export function MobileHeader() {
             <div className="flex items-center justify-between border-b border-brand-100 px-4 py-4">
               <div>
                 <p className="text-sm font-bold text-brand-800">{displayName}としてログイン中</p>
-                <p className="text-xs text-gray-400">役割: {role}</p>
+                <p className="text-xs text-gray-400">役割: {role ? ROLE_LABEL[role] : ''}</p>
               </div>
               <button
                 aria-label="メニューを閉じる"

@@ -71,7 +71,9 @@ export function DataImportPage() {
     <div className="space-y-4">
       <div>
         <h1 className="text-lg font-bold text-brand-800 sm:text-xl">データ取込</h1>
-        <p className="text-sm text-gray-400">CSV/Excelファイルから売上・実績データを取り込みます（モック）</p>
+        <p className="text-sm text-gray-400">
+          税理士事務所から提供されるCSV/Excelファイルから売上・実績データを取り込みます（モック）
+        </p>
       </div>
 
       <Card title="ファイル選択">

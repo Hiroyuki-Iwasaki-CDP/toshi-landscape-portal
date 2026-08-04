@@ -5,8 +5,10 @@ export interface NavItem {
   path: string
   /** true の場合は「準備中」プレースホルダーページとして表示 */
   placeholder?: boolean
-  /** true の場合は管理者のみメニューに表示（現場社員には非表示） */
+  /** true の場合は管理者のみメニューに表示（それ以外の権限には非表示） */
   adminOnly?: boolean
+  /** true の場合は管理者・編集者が編集可能なページ（一般社員は閲覧のみ） */
+  editable?: boolean
 }
 
 export interface NavCategory {
@@ -29,6 +31,7 @@ export const navCategories: NavCategory[] = [
       { label: 'スケジュール', path: '/company/schedule' },
       { label: '実績ダッシュボード', path: '/dashboard' },
       { label: 'データ取込', path: '/data-import', adminOnly: true },
+      { label: 'ユーザー管理', path: '/admin/users', adminOnly: true },
     ],
   },
   {
@@ -42,8 +45,8 @@ export const navCategories: NavCategory[] = [
     label: 'GREEN MAINTENANCE',
     description: '緑地管理業務のマニュアル・資料',
     items: [
-      { label: '業務マニュアル', path: '/green-maintenance/manual', placeholder: true },
-      { label: 'フォーマット', path: '/green-maintenance/format', placeholder: true },
+      { label: '業務マニュアル', path: '/green-maintenance/manual', placeholder: true, editable: true },
+      { label: 'フォーマット', path: '/green-maintenance/format', placeholder: true, editable: true },
       { label: '使用機材・資材', path: '/green-maintenance/equipment', placeholder: true },
       { label: '安全管理', path: '/green-maintenance/safety', placeholder: true },
       { label: '提案資料', path: '/green-maintenance/proposal', placeholder: true },
@@ -55,10 +58,8 @@ export const navCategories: NavCategory[] = [
     label: 'TREE RISK ASSESSMENT',
     description: '樹木リスク評価業務のマニュアル・資料・AP',
     items: [
-      { label: '業務マニュアル', path: '/tree-risk/manual', placeholder: true },
-      { label: 'フォーマット', path: '/tree-risk/format', placeholder: true },
-      { label: 'カルテ作成AP', path: '/karte/new' },
-      { label: '文章校正AP', path: '/proofreading' },
+      { label: '業務マニュアル', path: '/tree-risk/manual', placeholder: true, editable: true },
+      { label: 'フォーマット', path: '/tree-risk/format', placeholder: true, editable: true },
       { label: '使用機材', path: '/tree-risk/equipment', placeholder: true },
       { label: '法令・ガイドライン', path: '/tree-risk/regulation', placeholder: true },
       { label: '提案資料', path: '/tree-risk/proposal', placeholder: true },
@@ -70,11 +71,11 @@ export const navCategories: NavCategory[] = [
     label: 'LANDSCAPE CONSULTING',
     description: '景観コンサルティング業務のマニュアル・資料・AP',
     items: [
-      { label: '業務マニュアル', path: '/landscape-consulting/manual', placeholder: true },
-      { label: 'フォーマット', path: '/landscape-consulting/format', placeholder: true },
+      { label: '業務マニュアル', path: '/landscape-consulting/manual', placeholder: true, editable: true },
+      { label: 'フォーマット', path: '/landscape-consulting/format', placeholder: true, editable: true },
       { label: '議事録AP', path: '/landscape-consulting/minutes-ap', placeholder: true },
       { label: '資料作成AP', path: '/landscape-consulting/document-ap', placeholder: true },
-      { label: '長期シミュレーションAP', path: '/landscape-consulting/simulation-ap', placeholder: true },
+      { label: '長期シミュレーションAP', path: '/landscape-consulting/simulation-ap' },
       { label: '提案資料', path: '/landscape-consulting/proposal', placeholder: true },
       { label: 'ナレッジ', path: '/landscape-consulting/knowledge', placeholder: true },
     ],

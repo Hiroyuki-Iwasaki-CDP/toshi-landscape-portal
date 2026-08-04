@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { LogOut, LayoutDashboard } from 'lucide-react'
 import { navCategories } from './NavConfig'
 import { useAuth } from '../../context/AuthContext'
+import { ROLE_LABEL } from '../../types'
 
 export function Sidebar() {
   const { role, displayName, logout } = useAuth()
@@ -47,7 +48,9 @@ export function Sidebar() {
       <div className="border-t border-brand-100 px-4 py-4">
         <p className="px-2 text-xs text-gray-400">ログイン中</p>
         <div className="flex items-center justify-between px-2 py-1">
-          <span className="text-sm font-semibold text-brand-800">{displayName}（{role}）</span>
+          <span className="text-sm font-semibold text-brand-800">
+            {displayName}（{role ? ROLE_LABEL[role] : ''}）
+          </span>
           <button
             onClick={logout}
             className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-gray-500 hover:bg-brand-50 hover:text-brand-700"

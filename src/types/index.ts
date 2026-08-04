@@ -1,7 +1,13 @@
 // 社内ポータル モックで使用する型定義
 
-/** ログインユーザーの権限ロール */
-export type UserRole = 'admin' | 'staff'
+/** ログインユーザーの権限ロール（管理者・編集者・一般社員の3段階） */
+export type UserRole = 'admin' | 'editor' | 'staff'
+
+export const ROLE_LABEL: Record<UserRole, string> = {
+  admin: '管理者',
+  editor: '編集者',
+  staff: '一般社員',
+}
 
 /** 3部門の識別子 */
 export type Department =
@@ -55,20 +61,6 @@ export interface CompletionReport {
   wasteKg: number
   workDate: string // YYYY-MM-DD
   summary: string
-}
-
-/** カルテ所見項目 */
-export interface KarteFinding {
-  label: string
-  text: string
-}
-
-/** カルテサンプル（校正AP用） */
-export interface KarteSample {
-  id: string
-  title: string
-  isCorrectExample: boolean
-  findings: KarteFinding[]
 }
 
 /** お知らせ */

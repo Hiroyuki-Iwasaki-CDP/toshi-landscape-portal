@@ -107,7 +107,7 @@ function ClientInfoTab({ client }: { client: (typeof clients)[number] }) {
 
 function ClientDashboardTab({ clientId }: { clientId: string }) {
   const { role } = useAuth()
-  const isMasked = role === 'staff'
+  const isMasked = role !== 'admin'
   const [fiscalYear, setFiscalYear] = useState<number>(FISCAL_YEAR_OPTIONS[FISCAL_YEAR_OPTIONS.length - 1])
   const [department, setDepartment] = useState<Department | 'all'>('all')
 
