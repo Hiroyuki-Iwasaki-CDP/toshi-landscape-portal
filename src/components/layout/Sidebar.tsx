@@ -8,7 +8,7 @@ export function Sidebar() {
   const { role, displayName, logout } = useAuth()
 
   return (
-    <aside className="hidden w-72 shrink-0 flex-col border-r border-brand-100 bg-white md:flex">
+    <aside className="hidden h-screen w-72 shrink-0 flex-col border-r border-brand-100 bg-white md:flex">
       <Link
         to="/"
         className="flex items-center gap-2 border-b border-brand-100 px-6 py-5 transition-colors hover:bg-brand-50"
