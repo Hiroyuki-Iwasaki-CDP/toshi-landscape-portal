@@ -4,7 +4,8 @@ import { Building2, Users, Leaf, ShieldAlert, Mountain, ArrowRight, Bell, Target
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { navCategories } from '../../components/layout/NavConfig'
-import { newsItems } from '../../data/news'
+import { fetchNews } from '../../data/repo'
+import { useAsyncData } from '../../lib/useAsyncData'
 import { companyCreed, companyMission, goals2026 } from '../../data/company'
 import { formatDateJa } from '../../lib/format'
 import { useAuth } from '../../context/AuthContext'
@@ -27,6 +28,7 @@ const CATEGORY_LINK: Record<string, string> = {
 
 export function PortalTopPage() {
   const { displayName } = useAuth()
+  const { data: newsItems, loading: newsLoading } = useAsyncData(fetchNews, [])
 
   return (
     <div className="space-y-6">
@@ -86,20 +88,24 @@ export function PortalTopPage() {
           </Link>
         }
       >
-        <ul className="divide-y divide-brand-50">
-          {newsItems.slice(0, 4).map((item) => (
-            <li key={item.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-              <Bell className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" />
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge color="gray">{item.category}</Badge>
-                  <span className="text-xs text-gray-400">{formatDateJa(item.date)}</span>
+        {newsLoading ? (
+          <p className="py-4 text-center text-sm text-gray-400">読み込み中…</p>
+        ) : (
+          <ul className="divide-y divide-brand-50">
+            {(newsItems ?? []).slice(0, 4).map((item) => (
+              <li key={item.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+                <Bell className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge color="gray">{item.category}</Badge>
+                    <span className="text-xs text-gray-400">{formatDateJa(item.date)}</span>
+                  </div>
+                  <p className="mt-1 text-sm font-medium text-gray-700">{item.title}</p>
                 </div>
-                <p className="mt-1 text-sm font-medium text-gray-700">{item.title}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        )}
       </Card>
     </div>
   )

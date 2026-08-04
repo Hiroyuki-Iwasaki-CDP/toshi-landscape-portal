@@ -2,23 +2,25 @@ import { useMemo, useState } from 'react'
 import { Bell, CalendarDays, MapPin, Clock, Search, ChevronLeft, ChevronRight, RefreshCw, ExternalLink } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
-import { newsItems } from '../../data/news'
-import { scheduleItems } from '../../data/schedule'
+import { fetchNews, fetchSchedule } from '../../data/repo'
+import { useAsyncData } from '../../lib/useAsyncData'
 import { formatDateJa } from '../../lib/format'
 
 const PAGE_SIZE = 10
 
 export function CompanyNewsPage() {
+  const { data: newsItems, loading, error } = useAsyncData(fetchNews, [])
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(1)
 
   const filtered = useMemo(() => {
+    const items = newsItems ?? []
     const q = query.trim().toLowerCase()
-    if (!q) return newsItems
-    return newsItems.filter(
+    if (!q) return items
+    return items.filter(
       (item) => item.title.toLowerCase().includes(q) || item.body.toLowerCase().includes(q),
     )
-  }, [query])
+  }, [newsItems, query])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
@@ -45,7 +47,11 @@ export function CompanyNewsPage() {
       </div>
 
       <Card>
-        {pageItems.length === 0 ? (
+        {loading ? (
+          <p className="py-8 text-center text-sm text-gray-400">読み込み中…</p>
+        ) : error ? (
+          <p className="py-8 text-center text-sm text-red-500">データの取得に失敗しました: {error}</p>
+        ) : pageItems.length === 0 ? (
           <p className="py-8 text-center text-sm text-gray-400">該当するお知らせが見つかりませんでした</p>
         ) : (
           <ul className="divide-y divide-brand-50">
@@ -108,6 +114,8 @@ export function CompanyNewsPage() {
 }
 
 export function CompanySchedulePage() {
+  const { data: scheduleItems, loading, error } = useAsyncData(fetchSchedule, [])
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -129,30 +137,36 @@ export function CompanySchedulePage() {
       </div>
 
       <Card>
-        <ul className="divide-y divide-brand-50">
-          {scheduleItems.map((item) => (
-            <li key={item.id} className="flex items-start gap-3 py-4 first:pt-0 last:pb-0">
-              <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-gray-700">{item.title}</p>
-                <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
-                  <span className="flex items-center gap-1">
-                    <CalendarDays className="h-3.5 w-3.5" />
-                    {formatDateJa(item.date)}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" />
-                    {item.time}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {item.location}
-                  </span>
+        {loading ? (
+          <p className="py-8 text-center text-sm text-gray-400">読み込み中…</p>
+        ) : error ? (
+          <p className="py-8 text-center text-sm text-red-500">データの取得に失敗しました: {error}</p>
+        ) : (
+          <ul className="divide-y divide-brand-50">
+            {(scheduleItems ?? []).map((item) => (
+              <li key={item.id} className="flex items-start gap-3 py-4 first:pt-0 last:pb-0">
+                <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-gray-700">{item.title}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <CalendarDays className="h-3.5 w-3.5" />
+                      {formatDateJa(item.date)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3.5 w-3.5" />
+                      {item.time}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {item.location}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        )}
       </Card>
     </div>
   )

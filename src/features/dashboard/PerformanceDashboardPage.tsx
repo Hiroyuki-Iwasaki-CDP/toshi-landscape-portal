@@ -5,8 +5,9 @@ import { StatCard } from '../../components/ui/StatCard'
 import { MonthlySalesChart } from '../../components/charts/MonthlySalesChart'
 import { DeptShareChart } from '../../components/charts/DeptShareChart'
 import { ClientRankingChart } from '../../components/charts/ClientRankingChart'
-import { salesRecords, FISCAL_YEAR_OPTIONS } from '../../data/sales'
-import { clients } from '../../data/clients'
+import { FISCAL_YEAR_OPTIONS } from '../../data/sales'
+import { fetchClients, fetchSalesRecords } from '../../data/repo'
+import { useAsyncData } from '../../lib/useAsyncData'
 import { DEPARTMENT_LABEL, DEPARTMENTS, type Department } from '../../types'
 import { formatYen, formatNumber } from '../../lib/format'
 import { useAuth } from '../../context/AuthContext'
@@ -23,19 +24,22 @@ export function PerformanceDashboardPage() {
   const { role } = useAuth()
   const isMasked = role !== 'admin'
 
+  const { data: salesRecords, loading: salesLoading } = useAsyncData(fetchSalesRecords, [])
+  const { data: clients, loading: clientsLoading } = useAsyncData(fetchClients, [])
+
   const [periodType, setPeriodType] = useState<PeriodType>('monthly')
   const [fiscalYear, setFiscalYear] = useState<number>(FISCAL_YEAR_OPTIONS[FISCAL_YEAR_OPTIONS.length - 1])
   const [clientId, setClientId] = useState<string>('all')
   const [department, setDepartment] = useState<Department | 'all'>('all')
 
   const filteredRecords = useMemo(() => {
-    return salesRecords.filter((r) => {
+    return (salesRecords ?? []).filter((r) => {
       if (periodType === 'monthly' && r.fiscalYear !== fiscalYear) return false
       if (clientId !== 'all' && r.clientId !== clientId) return false
       if (department !== 'all' && r.department !== department) return false
       return true
     })
-  }, [periodType, fiscalYear, clientId, department])
+  }, [salesRecords, periodType, fiscalYear, clientId, department])
 
   const totals = useMemo(() => {
     return filteredRecords.reduce(
@@ -80,11 +84,15 @@ export function PerformanceDashboardPage() {
     for (const r of filteredRecords) {
       byClient.set(r.clientId, (byClient.get(r.clientId) ?? 0) + r.amount)
     }
-    return clients
+    return (clients ?? [])
       .map((c) => ({ label: c.name, amount: byClient.get(c.id) ?? 0 }))
       .filter((c) => c.amount > 0)
       .sort((a, b) => b.amount - a.amount)
-  }, [filteredRecords])
+  }, [filteredRecords, clients])
+
+  if (salesLoading || clientsLoading) {
+    return <p className="py-8 text-center text-sm text-gray-400">読み込み中…</p>
+  }
 
   return (
     <div className="space-y-6">
@@ -138,7 +146,7 @@ export function PerformanceDashboardPage() {
               className="w-full rounded-lg border border-brand-200 px-3 py-1.5 text-sm"
             >
               <option value="all">すべての取引先</option>
-              {clients.map((c) => (
+              {(clients ?? []).map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>

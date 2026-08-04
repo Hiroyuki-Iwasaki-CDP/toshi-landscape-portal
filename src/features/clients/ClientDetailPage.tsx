@@ -6,10 +6,11 @@ import { StatCard } from '../../components/ui/StatCard'
 import { Badge } from '../../components/ui/Badge'
 import { MonthlySalesChart } from '../../components/charts/MonthlySalesChart'
 import { DeptShareChart } from '../../components/charts/DeptShareChart'
-import { clients } from '../../data/clients'
-import { salesRecords, FISCAL_YEAR_OPTIONS } from '../../data/sales'
+import { fetchClients, fetchSalesRecords } from '../../data/repo'
+import { useAsyncData } from '../../lib/useAsyncData'
+import { FISCAL_YEAR_OPTIONS } from '../../data/sales'
 import { completionReports } from '../../data/reports'
-import { DEPARTMENT_LABEL, DEPARTMENTS, type Department } from '../../types'
+import { DEPARTMENT_LABEL, DEPARTMENTS, type Client, type Department } from '../../types'
 import { formatYen, formatNumber, formatDateJa } from '../../lib/format'
 import { useAuth } from '../../context/AuthContext'
 
@@ -23,8 +24,17 @@ function monthOf(yearMonth: string): number {
 
 export function ClientDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const client = clients.find((c) => c.id === id)
+  const { data: clients, loading, error } = useAsyncData(fetchClients, [])
+  const client = clients?.find((c) => c.id === id)
   const [tab, setTab] = useState<Tab>('info')
+
+  if (loading) {
+    return <p className="py-8 text-center text-sm text-gray-400">読み込み中…</p>
+  }
+
+  if (error) {
+    return <p className="py-8 text-center text-sm text-red-500">データの取得に失敗しました: {error}</p>
+  }
 
   if (!client) {
     return (
@@ -82,7 +92,7 @@ export function ClientDetailPage() {
   )
 }
 
-function ClientInfoTab({ client }: { client: (typeof clients)[number] }) {
+function ClientInfoTab({ client }: { client: Client }) {
   const rows: [string, string][] = [
     ['取引先コード', client.code],
     ['業種', client.industry],
@@ -108,18 +118,19 @@ function ClientInfoTab({ client }: { client: (typeof clients)[number] }) {
 function ClientDashboardTab({ clientId }: { clientId: string }) {
   const { role } = useAuth()
   const isMasked = role !== 'admin'
+  const { data: salesRecords, loading } = useAsyncData(fetchSalesRecords, [])
   const [fiscalYear, setFiscalYear] = useState<number>(FISCAL_YEAR_OPTIONS[FISCAL_YEAR_OPTIONS.length - 1])
   const [department, setDepartment] = useState<Department | 'all'>('all')
 
   const filtered = useMemo(
     () =>
-      salesRecords.filter(
+      (salesRecords ?? []).filter(
         (r) =>
           r.clientId === clientId &&
           r.fiscalYear === fiscalYear &&
           (department === 'all' || r.department === department),
       ),
-    [clientId, fiscalYear, department],
+    [salesRecords, clientId, fiscalYear, department],
   )
 
   const totals = useMemo(
@@ -153,6 +164,10 @@ function ClientDashboardTab({ clientId }: { clientId: string }) {
       (d) => d.amount > 0,
     )
   }, [filtered])
+
+  if (loading) {
+    return <p className="py-8 text-center text-sm text-gray-400">読み込み中…</p>
+  }
 
   return (
     <div className="space-y-4">
