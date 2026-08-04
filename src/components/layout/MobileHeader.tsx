@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
-import { Menu, X, LogOut } from 'lucide-react'
+import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Menu, X, LogOut, Home } from 'lucide-react'
 import { navCategories } from './NavConfig'
 import { useAuth } from '../../context/AuthContext'
 import { ROLE_LABEL } from '../../types'
@@ -18,7 +18,9 @@ export function MobileHeader() {
   return (
     <div className="md:hidden">
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-brand-100 bg-white px-4 py-3">
-        <p className="text-sm font-bold text-brand-800">トシ・ランドスケープ</p>
+        <Link to="/" className="text-sm font-bold text-brand-800">
+          トシ・ランドスケープ
+        </Link>
         <button
           aria-label="メニューを開く"
           onClick={() => setOpen(true)}
@@ -47,6 +49,22 @@ export function MobileHeader() {
             </div>
 
             <nav className="flex-1 px-3 py-3">
+              <div className="mb-4">
+                <NavLink
+                  to="/"
+                  end
+                  onClick={() => setOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                      isActive ? 'bg-brand-600 text-white' : 'text-brand-700 hover:bg-brand-50'
+                    }`
+                  }
+                >
+                  <Home className="h-4 w-4" />
+                  ホーム
+                </NavLink>
+              </div>
+
               {navCategories.map((category) => (
                 <div key={category.key} className="mb-4">
                   <p className="mb-1.5 px-3 text-xs font-bold tracking-wide text-brand-400">{category.label}</p>

@@ -1,5 +1,5 @@
-import { NavLink } from 'react-router-dom'
-import { LogOut, LayoutDashboard } from 'lucide-react'
+import { Link, NavLink } from 'react-router-dom'
+import { LogOut, LayoutDashboard, Home } from 'lucide-react'
 import { navCategories } from './NavConfig'
 import { useAuth } from '../../context/AuthContext'
 import { ROLE_LABEL } from '../../types'
@@ -9,15 +9,33 @@ export function Sidebar() {
 
   return (
     <aside className="hidden w-72 shrink-0 flex-col border-r border-brand-100 bg-white md:flex">
-      <div className="flex items-center gap-2 border-b border-brand-100 px-6 py-5">
+      <Link
+        to="/"
+        className="flex items-center gap-2 border-b border-brand-100 px-6 py-5 transition-colors hover:bg-brand-50"
+      >
         <LayoutDashboard className="h-6 w-6 text-brand-600" />
         <div>
           <p className="text-sm font-bold leading-tight text-brand-800">トシ・ランドスケープ</p>
           <p className="text-xs text-gray-400">社内ポータル（モック）</p>
         </div>
-      </div>
+      </Link>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <div className="mb-5">
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                isActive ? 'bg-brand-600 text-white' : 'text-brand-700 hover:bg-brand-50'
+              }`
+            }
+          >
+            <Home className="h-4 w-4" />
+            ホーム
+          </NavLink>
+        </div>
+
         {navCategories.map((category) => (
           <div key={category.key} className="mb-5">
             <p className="mb-1.5 px-3 text-xs font-bold tracking-wide text-brand-400">{category.label}</p>
