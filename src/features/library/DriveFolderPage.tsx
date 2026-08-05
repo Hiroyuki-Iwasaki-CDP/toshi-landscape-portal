@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { File as FileIcon, Search, UploadCloud, FolderSync } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { File as FileIcon, Search, UploadCloud, FolderSync, Pencil, Check, X, Tag } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { useAuth } from '../../context/AuthContext'
@@ -10,8 +10,34 @@ import { useAsyncData } from '../../lib/useAsyncData'
 import { formatDateJa } from '../../lib/format'
 import { getManualImagery } from '../../lib/manualImagery'
 
-function FileCard({ file }: { file: DriveFileItem }) {
+interface FileCardProps {
+  file: DriveFileItem
+  canEdit: boolean
+  onUpdate: (id: string, patch: { detail: string; tags: string[] }) => void
+  onTagClick: (tag: string) => void
+}
+
+function FileCard({ file, canEdit, onUpdate, onTagClick }: FileCardProps) {
   const { Icon, gradient } = getManualImagery(file.name)
+  const [editing, setEditing] = useState(false)
+  const [detailDraft, setDetailDraft] = useState(file.detail ?? '')
+  const [tagsDraft, setTagsDraft] = useState((file.tags ?? []).join(', '))
+
+  function startEdit() {
+    setDetailDraft(file.detail ?? '')
+    setTagsDraft((file.tags ?? []).join(', '))
+    setEditing(true)
+  }
+
+  function save() {
+    const tags = tagsDraft
+      .split(/[,、\s]+/)
+      .map((t) => t.replace(/^#/, '').trim())
+      .filter(Boolean)
+    onUpdate(file.id, { detail: detailDraft.trim(), tags })
+    setEditing(false)
+  }
+
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm transition-shadow hover:shadow-md">
       <div className={`flex h-32 items-center justify-center bg-gradient-to-br ${gradient}`}>
@@ -19,8 +45,75 @@ function FileCard({ file }: { file: DriveFileItem }) {
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <p className="text-sm font-bold leading-snug text-gray-700">{file.name}</p>
-        {file.excerpt && <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-gray-500">{file.excerpt}…</p>}
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-sm font-bold leading-snug text-gray-700">{file.name}</p>
+          {canEdit && !editing && (
+            <button
+              onClick={startEdit}
+              className="shrink-0 rounded p-1 text-gray-300 hover:bg-brand-50 hover:text-brand-600"
+              aria-label="詳細・タグを編集"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+
+        {editing ? (
+          <div className="mt-2 space-y-2">
+            <textarea
+              value={detailDraft}
+              onChange={(e) => setDetailDraft(e.target.value)}
+              placeholder="簡単な詳細説明"
+              rows={2}
+              className="w-full resize-none rounded-lg border border-brand-200 px-2 py-1.5 text-xs focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            />
+            <input
+              type="text"
+              value={tagsDraft}
+              onChange={(e) => setTagsDraft(e.target.value)}
+              placeholder="タグ（カンマ区切り、例: 安全, 夏季）"
+              className="w-full rounded-lg border border-brand-200 px-2 py-1.5 text-xs focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            />
+            <div className="flex justify-end gap-1">
+              <button
+                onClick={() => setEditing(false)}
+                className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-gray-500 hover:bg-gray-100"
+              >
+                <X className="h-3.5 w-3.5" />
+                取消
+              </button>
+              <button
+                onClick={save}
+                className="flex items-center gap-1 rounded-lg bg-brand-600 px-2 py-1 text-xs text-white hover:bg-brand-700"
+              >
+                <Check className="h-3.5 w-3.5" />
+                保存
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {(file.detail || file.excerpt) && (
+              <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-gray-500">
+                {file.detail || `${file.excerpt}…`}
+              </p>
+            )}
+            {file.tags && file.tags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {file.tags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => onTagClick(tag)}
+                    className="inline-flex items-center gap-0.5 rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-600 hover:bg-brand-100"
+                  >
+                    <Tag className="h-2.5 w-2.5" />#{tag}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
         <p className="mt-2 text-xs text-gray-400">
           {formatDateJa(file.updatedAt)} ・ {file.updatedBy}
         </p>
@@ -53,14 +146,28 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
   const [query, setQuery] = useState('')
   const isConnected = Boolean(driveFolderIds[path])
 
-  const { data: files, loading, error } = useAsyncData(() => fetchDriveFiles(path), [path])
+  const { data: fetchedFiles, loading, error } = useAsyncData(() => fetchDriveFiles(path), [path])
+  const [localFiles, setLocalFiles] = useState<DriveFileItem[]>([])
+
+  useEffect(() => {
+    if (fetchedFiles) setLocalFiles(fetchedFiles)
+  }, [fetchedFiles])
+
+  function handleUpdate(id: string, patch: { detail: string; tags: string[] }) {
+    setLocalFiles((prev) => prev.map((f) => (f.id === id ? { ...f, ...patch } : f)))
+  }
 
   const filtered = useMemo(() => {
-    const items = files ?? []
-    const q = query.trim().toLowerCase()
-    if (!q) return items
-    return items.filter((f) => f.name.toLowerCase().includes(q))
-  }, [files, query])
+    const q = query.trim().toLowerCase().replace(/^#/, '')
+    if (!q) return localFiles
+    return localFiles.filter((f) => {
+      if (f.name.toLowerCase().includes(q)) return true
+      if (f.detail?.toLowerCase().includes(q)) return true
+      if (f.excerpt?.toLowerCase().includes(q)) return true
+      if (f.tags?.some((t) => t.toLowerCase().includes(q))) return true
+      return false
+    })
+  }, [localFiles, query])
 
   return (
     <div className="space-y-4">
@@ -87,7 +194,7 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="ファイル名で検索"
+          placeholder="ファイル名・詳細・#タグ で検索"
           className="w-full rounded-xl border border-brand-200 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
         />
       </div>
@@ -105,14 +212,14 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <FileIcon className="mb-3 h-8 w-8 text-brand-200" />
             <p className="text-sm text-gray-400">
-              {(files ?? []).length === 0 ? 'このフォルダにはまだファイルがありません' : '該当するファイルが見つかりませんでした'}
+              {localFiles.length === 0 ? 'このフォルダにはまだファイルがありません' : '該当するファイルが見つかりませんでした'}
             </p>
           </div>
         </Card>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {filtered.map((file) => (
-            <FileCard key={file.id} file={file} />
+            <FileCard key={file.id} file={file} canEdit={canEdit} onUpdate={handleUpdate} onTagClick={setQuery} />
           ))}
         </div>
       )}

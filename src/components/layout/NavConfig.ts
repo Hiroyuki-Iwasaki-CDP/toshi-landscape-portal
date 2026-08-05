@@ -73,8 +73,6 @@ export const navCategories: NavCategory[] = [
     items: [
       { label: '業務マニュアル', path: '/landscape-consulting/manual', placeholder: true, editable: true },
       { label: 'フォーマット', path: '/landscape-consulting/format', placeholder: true, editable: true },
-      { label: '議事録AP', path: '/landscape-consulting/minutes-ap', placeholder: true },
-      { label: '資料作成AP', path: '/landscape-consulting/document-ap', placeholder: true },
       { label: '長期シミュレーションAP', path: '/landscape-consulting/simulation-ap' },
       { label: '提案資料', path: '/landscape-consulting/proposal', placeholder: true, editable: true },
       { label: 'ナレッジ', path: '/landscape-consulting/knowledge', placeholder: true, editable: true },
