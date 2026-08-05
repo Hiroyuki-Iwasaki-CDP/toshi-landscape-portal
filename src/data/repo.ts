@@ -116,6 +116,30 @@ export async function fetchDriveFiles(path: string): Promise<DriveFileItem[]> {
   }))
 }
 
+export interface AppSheetData {
+  sheetName: string
+  headers: string[]
+  records: Record<string, string>[]
+}
+
+// AppSheet連携テスト用のスプレッドシートID(検証用の個人テストシート)
+const APPSHEET_TEST_SPREADSHEET_ID = '1VBsbj-HAxIPb3yVXi_9A3IzZ7nRnWKd7_ytX1dXjqJ4'
+
+export async function fetchAppSheetTestData(): Promise<AppSheetData> {
+  if (!isSupabaseConfigured) throw new Error('Supabaseが設定されていません')
+
+  const url = `${supabaseUrl}/functions/v1/sheet-read?spreadsheetId=${encodeURIComponent(APPSHEET_TEST_SPREADSHEET_ID)}`
+  const res = await fetch(url, {
+    headers: {
+      apikey: supabasePublishableKey!,
+      Authorization: `Bearer ${supabasePublishableKey}`,
+    },
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error))
+  return data as AppSheetData
+}
+
 export async function fetchUsers(): Promise<UserRecord[]> {
   if (!isSupabaseConfigured) return initialUsers
   const { data, error } = await mustSupabase().from('portal_users').select('*').order('id', { ascending: true })

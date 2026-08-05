@@ -31,6 +31,7 @@ export const navCategories: NavCategory[] = [
       { label: '実績ダッシュボード', path: '/dashboard' },
       { label: 'データ取込', path: '/data-import', adminOnly: true },
       { label: 'ユーザー管理', path: '/admin/users', adminOnly: true },
+      { label: 'AppSheet連携テスト', path: '/admin/appsheet-test', adminOnly: true },
     ],
   },
   {

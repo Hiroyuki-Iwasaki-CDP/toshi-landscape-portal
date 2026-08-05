@@ -12,6 +12,7 @@ import { ClientListPage } from './features/clients/ClientListPage'
 import { ClientDetailPage } from './features/clients/ClientDetailPage'
 import { CompanyNewsPage, CompanySchedulePage } from './features/company/CompanyInfoPage'
 import { UserManagementPage } from './features/admin/UserManagementPage'
+import { AppSheetTestPage } from './features/admin/AppSheetTestPage'
 import { SimulationEmbedPage } from './features/landscape-consulting/SimulationEmbedPage'
 import { DriveFolderPage } from './features/library/DriveFolderPage'
 
@@ -30,6 +31,7 @@ const BUILT_PATHS = new Set([
   '/clients',
   '/data-import',
   '/admin/users',
+  '/admin/appsheet-test',
   '/landscape-consulting/simulation-ap',
   ...driveRoutes.map((r) => r.path),
 ])
@@ -63,6 +65,7 @@ function App() {
             <Route path="/dashboard" element={<PerformanceDashboardPage />} />
             <Route path="/data-import" element={<DataImportPage />} />
             <Route path="/admin/users" element={<UserManagementPage />} />
+            <Route path="/admin/appsheet-test" element={<AppSheetTestPage />} />
             <Route path="/landscape-consulting/simulation-ap" element={<SimulationEmbedPage />} />
             <Route path="/clients" element={<ClientListPage />} />
             <Route path="/clients/:id" element={<ClientDetailPage />} />
