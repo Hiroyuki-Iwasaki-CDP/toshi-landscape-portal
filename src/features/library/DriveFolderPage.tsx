@@ -3,7 +3,10 @@ import { FileText, FileSpreadsheet, Presentation, File as FileIcon, Search, Uplo
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { useAuth } from '../../context/AuthContext'
-import { driveFiles, type DriveFileItem, type DriveFileType } from '../../data/driveFiles'
+import { type DriveFileItem, type DriveFileType } from '../../data/driveFiles'
+import { driveFolderIds } from '../../data/driveFolderIds'
+import { fetchDriveFiles } from '../../data/repo'
+import { useAsyncData } from '../../lib/useAsyncData'
 import { formatDateJa } from '../../lib/format'
 
 const TYPE_ICON: Record<DriveFileType, typeof FileText> = {
@@ -20,8 +23,6 @@ const TYPE_COLOR: Record<DriveFileType, string> = {
   pdf: 'bg-red-50 text-red-500',
 }
 
-const EMPTY_FILES: DriveFileItem[] = []
-
 function FileCard({ file }: { file: DriveFileItem }) {
   const Icon = TYPE_ICON[file.type]
   return (
@@ -33,7 +34,18 @@ function FileCard({ file }: { file: DriveFileItem }) {
       <p className="mt-2 text-xs text-gray-400">
         {formatDateJa(file.updatedAt)} ・ {file.updatedBy}
       </p>
-      <p className="mt-auto pt-3 text-xs font-medium text-gray-300">Driveで開く（連携後に有効）</p>
+      {file.webViewLink ? (
+        <a
+          href={file.webViewLink}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-auto pt-3 text-xs font-semibold text-brand-600 hover:underline"
+        >
+          Driveで開く →
+        </a>
+      ) : (
+        <p className="mt-auto pt-3 text-xs font-medium text-gray-300">Driveで開く（連携後に有効）</p>
+      )}
     </div>
   )
 }
@@ -48,12 +60,15 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
   const { role } = useAuth()
   const canEdit = role === 'admin' || role === 'editor'
   const [query, setQuery] = useState('')
+  const isConnected = Boolean(driveFolderIds[path])
 
-  const files = driveFiles[path] ?? EMPTY_FILES
+  const { data: files, loading, error } = useAsyncData(() => fetchDriveFiles(path), [path])
+
   const filtered = useMemo(() => {
+    const items = files ?? []
     const q = query.trim().toLowerCase()
-    if (!q) return files
-    return files.filter((f) => f.name.toLowerCase().includes(q))
+    if (!q) return items
+    return items.filter((f) => f.name.toLowerCase().includes(q))
   }, [files, query])
 
   return (
@@ -71,7 +86,7 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
         </div>
         <p className="mt-1 flex items-center gap-1 text-xs text-gray-400">
           <FolderSync className="h-3.5 w-3.5" />
-          Googleドライブと連携（モック表示・実データではありません）
+          {isConnected ? 'Googleドライブと連携済み（実データ）' : 'Googleドライブと連携（モック表示・実データではありません）'}
         </p>
       </div>
 
@@ -86,12 +101,20 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
         />
       </div>
 
-      {filtered.length === 0 ? (
+      {loading ? (
+        <Card>
+          <p className="py-12 text-center text-sm text-gray-400">読み込み中…</p>
+        </Card>
+      ) : error ? (
+        <Card>
+          <p className="py-12 text-center text-sm text-red-500">データの取得に失敗しました: {error}</p>
+        </Card>
+      ) : filtered.length === 0 ? (
         <Card>
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <FileIcon className="mb-3 h-8 w-8 text-brand-200" />
             <p className="text-sm text-gray-400">
-              {files.length === 0 ? 'このフォルダにはまだファイルがありません' : '該当するファイルが見つかりませんでした'}
+              {(files ?? []).length === 0 ? 'このフォルダにはまだファイルがありません' : '該当するファイルが見つかりませんでした'}
             </p>
           </div>
         </Card>

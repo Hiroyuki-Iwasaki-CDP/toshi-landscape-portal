@@ -1,5 +1,5 @@
 // データ取得の単一窓口。Supabase接続時は実データ、未接続時はダミーデータを返す。
-import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
+import { supabase, isSupabaseConfigured, supabaseUrl, supabasePublishableKey } from '../lib/supabaseClient'
 import type { Client, Department, NewsItem, SalesRecord, ScheduleItem, UserRole } from '../types'
 import type { UserRecord } from './users'
 import { newsItems } from './news'
@@ -7,6 +7,8 @@ import { scheduleItems } from './schedule'
 import { clients as mockClients } from './clients'
 import { salesRecords as mockSalesRecords } from './sales'
 import { initialUsers } from './users'
+import { driveFiles as mockDriveFiles, type DriveFileItem, type DriveFileType } from './driveFiles'
+import { driveFolderIds } from './driveFolderIds'
 
 function mustSupabase() {
   if (!supabase) throw new Error('Supabaseが設定されていません')
@@ -67,6 +69,46 @@ export async function fetchSalesRecords(): Promise<SalesRecord[]> {
     amount: Number(row.amount),
     manDays: Number(row.man_days),
     wasteKg: Number(row.waste_kg),
+  }))
+}
+
+const MIME_TYPE_MAP: Record<string, DriveFileType> = {
+  'application/vnd.google-apps.document': 'doc',
+  'application/vnd.google-apps.spreadsheet': 'sheet',
+  'application/vnd.google-apps.presentation': 'slide',
+  'application/pdf': 'pdf',
+}
+
+interface DriveApiFile {
+  id: string
+  name: string
+  mimeType: string
+  modifiedTime: string
+  webViewLink?: string
+  lastModifyingUser?: { displayName?: string }
+}
+
+export async function fetchDriveFiles(path: string): Promise<DriveFileItem[]> {
+  const folderId = driveFolderIds[path]
+  if (!folderId || !isSupabaseConfigured) return mockDriveFiles[path] ?? []
+
+  const url = `${supabaseUrl}/functions/v1/drive-list?folderId=${encodeURIComponent(folderId)}`
+  const res = await fetch(url, {
+    headers: {
+      apikey: supabasePublishableKey!,
+      Authorization: `Bearer ${supabasePublishableKey}`,
+    },
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error))
+
+  return (data.files as DriveApiFile[]).map((f) => ({
+    id: f.id,
+    name: f.name,
+    type: MIME_TYPE_MAP[f.mimeType] ?? 'doc',
+    updatedAt: f.modifiedTime,
+    updatedBy: f.lastModifyingUser?.displayName ?? '不明',
+    webViewLink: f.webViewLink,
   }))
 }
 

@@ -9,6 +9,8 @@ export interface DriveFileItem {
   type: DriveFileType
   updatedAt: string // YYYY-MM-DD
   updatedBy: string
+  /** 実際のGoogleドライブファイルへのリンク（実データ接続時のみ設定される） */
+  webViewLink?: string
 }
 
 export const driveFiles: Record<string, DriveFileItem[]> = {
