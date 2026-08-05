@@ -53,4 +53,44 @@ export const driveFiles: Record<string, DriveFileItem[]> = {
     { id: 'lc-f02', name: '長期シミュレーション入力シート', type: 'sheet', updatedAt: '2026-05-11', updatedBy: '加藤 沙織' },
     { id: 'lc-f03', name: '議事録フォーマット', type: 'doc', updatedAt: '2026-04-08', updatedBy: '加藤 沙織' },
   ],
+  '/green-maintenance/equipment': [
+    { id: 'gm-e01', name: '刈払機 取扱説明書', type: 'pdf', updatedAt: '2026-05-15', updatedBy: '中村 悠斗' },
+    { id: 'gm-e02', name: 'チェーンソー点検チェックリスト', type: 'sheet', updatedAt: '2026-04-10', updatedBy: '山本 恵美' },
+    { id: 'gm-e03', name: '資材発注一覧', type: 'sheet', updatedAt: '2026-03-20', updatedBy: '中村 悠斗' },
+  ],
+  '/green-maintenance/safety': [
+    { id: 'gm-s01', name: '安全衛生管理マニュアル', type: 'pdf', updatedAt: '2026-06-01', updatedBy: '管理者 太郎' },
+    { id: 'gm-s02', name: 'ヒヤリハット報告フォーマット', type: 'sheet', updatedAt: '2026-05-08', updatedBy: '山本 恵美' },
+    { id: 'gm-s03', name: 'KY活動チェックシート', type: 'sheet', updatedAt: '2026-04-25', updatedBy: '中村 悠斗' },
+  ],
+  '/green-maintenance/proposal': [
+    { id: 'gm-p01', name: '緑地維持管理 提案書テンプレート', type: 'slide', updatedAt: '2026-05-30', updatedBy: '山本 恵美' },
+    { id: 'gm-p02', name: '植栽リニューアル提案事例集', type: 'slide', updatedAt: '2026-04-18', updatedBy: '山本 恵美' },
+  ],
+  '/green-maintenance/knowledge': [
+    { id: 'gm-k01', name: '季節ごとの植栽管理ポイント', type: 'doc', updatedAt: '2026-05-25', updatedBy: '中村 悠斗' },
+    { id: 'gm-k02', name: 'よくある病害虫と対処法', type: 'doc', updatedAt: '2026-04-12', updatedBy: '中村 悠斗' },
+  ],
+  '/tree-risk/equipment': [
+    { id: 'tr-e01', name: '樹木診断機器 取扱手順', type: 'pdf', updatedAt: '2026-05-20', updatedBy: '小林 亮' },
+    { id: 'tr-e02', name: '測定機材点検表', type: 'sheet', updatedAt: '2026-04-05', updatedBy: '編集 花子' },
+  ],
+  '/tree-risk/regulation': [
+    { id: 'tr-r01', name: '樹木医関連法令まとめ', type: 'doc', updatedAt: '2026-05-01', updatedBy: '編集 花子' },
+    { id: 'tr-r02', name: '街路樹評価ガイドライン(国交省準拠)', type: 'pdf', updatedAt: '2026-03-15', updatedBy: '編集 花子' },
+  ],
+  '/tree-risk/proposal': [
+    { id: 'tr-p01', name: '樹木リスク評価 提案書テンプレート', type: 'slide', updatedAt: '2026-05-12', updatedBy: '小林 亮' },
+  ],
+  '/tree-risk/knowledge': [
+    { id: 'tr-k01', name: '危険木判定の実例集', type: 'doc', updatedAt: '2026-04-28', updatedBy: '編集 花子' },
+    { id: 'tr-k02', name: '樹種別リスク傾向まとめ', type: 'doc', updatedAt: '2026-03-22', updatedBy: '小林 亮' },
+  ],
+  '/landscape-consulting/proposal': [
+    { id: 'lc-p01', name: '景観コンサル提案書テンプレート', type: 'slide', updatedAt: '2026-05-18', updatedBy: '加藤 沙織' },
+    { id: 'lc-p02', name: '公共施設向け提案事例集', type: 'slide', updatedAt: '2026-04-02', updatedBy: '山本 恵美' },
+  ],
+  '/landscape-consulting/knowledge': [
+    { id: 'lc-k01', name: '景観計画の考え方まとめ', type: 'doc', updatedAt: '2026-04-15', updatedBy: '加藤 沙織' },
+  ],
 }

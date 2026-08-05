@@ -47,10 +47,10 @@ export const navCategories: NavCategory[] = [
     items: [
       { label: '業務マニュアル', path: '/green-maintenance/manual', placeholder: true, editable: true },
       { label: 'フォーマット', path: '/green-maintenance/format', placeholder: true, editable: true },
-      { label: '使用機材・資材', path: '/green-maintenance/equipment', placeholder: true },
-      { label: '安全管理', path: '/green-maintenance/safety', placeholder: true },
-      { label: '提案資料', path: '/green-maintenance/proposal', placeholder: true },
-      { label: 'ナレッジ', path: '/green-maintenance/knowledge', placeholder: true },
+      { label: '使用機材・資材', path: '/green-maintenance/equipment', placeholder: true, editable: true },
+      { label: '安全管理', path: '/green-maintenance/safety', placeholder: true, editable: true },
+      { label: '提案資料', path: '/green-maintenance/proposal', placeholder: true, editable: true },
+      { label: 'ナレッジ', path: '/green-maintenance/knowledge', placeholder: true, editable: true },
     ],
   },
   {
@@ -60,10 +60,10 @@ export const navCategories: NavCategory[] = [
     items: [
       { label: '業務マニュアル', path: '/tree-risk/manual', placeholder: true, editable: true },
       { label: 'フォーマット', path: '/tree-risk/format', placeholder: true, editable: true },
-      { label: '使用機材', path: '/tree-risk/equipment', placeholder: true },
-      { label: '法令・ガイドライン', path: '/tree-risk/regulation', placeholder: true },
-      { label: '提案資料', path: '/tree-risk/proposal', placeholder: true },
-      { label: 'ナレッジ', path: '/tree-risk/knowledge', placeholder: true },
+      { label: '使用機材', path: '/tree-risk/equipment', placeholder: true, editable: true },
+      { label: '法令・ガイドライン', path: '/tree-risk/regulation', placeholder: true, editable: true },
+      { label: '提案資料', path: '/tree-risk/proposal', placeholder: true, editable: true },
+      { label: 'ナレッジ', path: '/tree-risk/knowledge', placeholder: true, editable: true },
     ],
   },
   {
@@ -76,8 +76,8 @@ export const navCategories: NavCategory[] = [
       { label: '議事録AP', path: '/landscape-consulting/minutes-ap', placeholder: true },
       { label: '資料作成AP', path: '/landscape-consulting/document-ap', placeholder: true },
       { label: '長期シミュレーションAP', path: '/landscape-consulting/simulation-ap' },
-      { label: '提案資料', path: '/landscape-consulting/proposal', placeholder: true },
-      { label: 'ナレッジ', path: '/landscape-consulting/knowledge', placeholder: true },
+      { label: '提案資料', path: '/landscape-consulting/proposal', placeholder: true, editable: true },
+      { label: 'ナレッジ', path: '/landscape-consulting/knowledge', placeholder: true, editable: true },
     ],
   },
 ]
