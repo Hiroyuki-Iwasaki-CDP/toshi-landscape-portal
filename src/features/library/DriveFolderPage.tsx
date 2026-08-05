@@ -1,43 +1,22 @@
 import { useMemo, useState } from 'react'
-import { FileText, FileSpreadsheet, Presentation, File as FileIcon, Search, UploadCloud, FolderSync } from 'lucide-react'
+import { File as FileIcon, Search, UploadCloud, FolderSync } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { useAuth } from '../../context/AuthContext'
-import { type DriveFileItem, type DriveFileType } from '../../data/driveFiles'
+import { type DriveFileItem } from '../../data/driveFiles'
 import { driveFolderIds } from '../../data/driveFolderIds'
 import { fetchDriveFiles } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { formatDateJa } from '../../lib/format'
-
-const TYPE_ICON: Record<DriveFileType, typeof FileText> = {
-  doc: FileText,
-  sheet: FileSpreadsheet,
-  slide: Presentation,
-  pdf: FileText,
-}
-
-const TYPE_COLOR: Record<DriveFileType, string> = {
-  doc: 'bg-blue-50 text-blue-500',
-  sheet: 'bg-green-50 text-green-600',
-  slide: 'bg-amber-50 text-amber-600',
-  pdf: 'bg-red-50 text-red-500',
-}
+import { getManualImagery } from '../../lib/manualImagery'
 
 function FileCard({ file }: { file: DriveFileItem }) {
-  const Icon = TYPE_ICON[file.type]
+  const { Icon, gradient } = getManualImagery(file.name)
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm transition-shadow hover:shadow-md">
-      {file.thumbnailLink ? (
-        <div className="flex h-40 items-center justify-center overflow-hidden border-b border-brand-50 bg-gray-50">
-          <img src={file.thumbnailLink} alt="" className="h-full w-full object-cover" />
-        </div>
-      ) : (
-        <div className="flex h-40 items-center justify-center border-b border-brand-50 bg-gray-50">
-          <div className={`flex h-14 w-14 items-center justify-center rounded-xl ${TYPE_COLOR[file.type]}`}>
-            <Icon className="h-7 w-7" />
-          </div>
-        </div>
-      )}
+      <div className={`flex h-32 items-center justify-center bg-gradient-to-br ${gradient}`}>
+        <Icon className="h-12 w-12 text-white/90" />
+      </div>
 
       <div className="flex flex-1 flex-col p-4">
         <p className="text-sm font-bold leading-snug text-gray-700">{file.name}</p>
