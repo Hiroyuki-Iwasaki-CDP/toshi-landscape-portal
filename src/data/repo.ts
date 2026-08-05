@@ -1,10 +1,11 @@
 // データ取得の単一窓口。Supabase接続時は実データ、未接続時はダミーデータを返す。
 import { supabase, isSupabaseConfigured, supabaseUrl, supabasePublishableKey } from '../lib/supabaseClient'
-import type { Client, Department, NewsItem, SalesRecord, ScheduleItem, UserRole } from '../types'
+import type { Client, ClientAlias, ClientStatus, Department, NewsItem, SalesRecord, ScheduleItem, UserRole } from '../types'
 import type { UserRecord } from './users'
 import { newsItems } from './news'
 import { scheduleItems } from './schedule'
 import { clients as mockClients } from './clients'
+import { clientAliases as mockClientAliases } from './clientAliases'
 import { salesRecords as mockSalesRecords } from './sales'
 import { initialUsers } from './users'
 import { driveFiles as mockDriveFiles, type DriveFileItem, type DriveFileType } from './driveFiles'
@@ -54,6 +55,21 @@ export async function fetchClients(): Promise<Client[]> {
     address: row.address,
     contractStartDate: row.contract_start_date,
     phone: row.phone,
+    department: row.department as Department,
+    status: row.status as ClientStatus,
+  }))
+}
+
+export async function fetchClientAliases(): Promise<ClientAlias[]> {
+  if (!isSupabaseConfigured) return mockClientAliases
+  const { data, error } = await mustSupabase().from('client_aliases').select('*')
+  if (error) throw error
+  return data.map((row) => ({
+    id: row.id,
+    alias: row.alias,
+    clientId: row.client_id,
+    createdAt: row.created_at,
+    createdBy: row.created_by,
   }))
 }
 

@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { Building2, ChevronRight } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
+import { Badge } from '../../components/ui/Badge'
 import { fetchClients } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
+import { CLIENT_STATUS_LABEL, DEPARTMENT_LABEL } from '../../types'
 
 export function ClientListPage() {
   const { data: clients, loading, error } = useAsyncData(fetchClients, [])
@@ -31,14 +33,15 @@ export function ClientListPage() {
                     <Building2 className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-mono text-gray-500">
                         {client.code}
                       </span>
                       <p className="truncate text-sm font-bold text-gray-700">{client.name}</p>
+                      {client.status !== 'active' && <Badge color="amber">{CLIENT_STATUS_LABEL[client.status]}</Badge>}
                     </div>
                     <p className="mt-0.5 truncate text-xs text-gray-400">
-                      {client.industry} ・ 担当: {client.contactPerson}
+                      {client.industry} ・ 担当: {client.contactPerson} ・ 主管: {DEPARTMENT_LABEL[client.department]}
                     </p>
                   </div>
                   <ChevronRight className="h-5 w-5 shrink-0 text-gray-300" />

@@ -10,7 +10,7 @@ import { fetchClients, fetchSalesRecords } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { FISCAL_YEAR_OPTIONS } from '../../data/sales'
 import { completionReports } from '../../data/reports'
-import { DEPARTMENT_LABEL, DEPARTMENTS, type Client, type Department } from '../../types'
+import { CLIENT_STATUS_LABEL, DEPARTMENT_LABEL, DEPARTMENTS, type Client, type Department } from '../../types'
 import { formatYen, formatNumber, formatDateJa } from '../../lib/format'
 import { useAuth } from '../../context/AuthContext'
 
@@ -96,6 +96,8 @@ function ClientInfoTab({ client }: { client: Client }) {
   const rows: [string, string][] = [
     ['取引先コード', client.code],
     ['業種', client.industry],
+    ['主管部門', DEPARTMENT_LABEL[client.department]],
+    ['状態', CLIENT_STATUS_LABEL[client.status]],
     ['担当者', client.contactPerson],
     ['住所', client.address],
     ['電話番号', client.phone],
