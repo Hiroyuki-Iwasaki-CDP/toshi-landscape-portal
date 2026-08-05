@@ -26,26 +26,38 @@ const TYPE_COLOR: Record<DriveFileType, string> = {
 function FileCard({ file }: { file: DriveFileItem }) {
   const Icon = TYPE_ICON[file.type]
   return (
-    <div className="flex flex-col rounded-2xl border border-brand-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-      <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${TYPE_COLOR[file.type]}`}>
-        <Icon className="h-5 w-5" />
-      </div>
-      <p className="text-sm font-bold leading-snug text-gray-700">{file.name}</p>
-      <p className="mt-2 text-xs text-gray-400">
-        {formatDateJa(file.updatedAt)} ・ {file.updatedBy}
-      </p>
-      {file.webViewLink ? (
-        <a
-          href={file.webViewLink}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-auto pt-3 text-xs font-semibold text-brand-600 hover:underline"
-        >
-          Driveで開く →
-        </a>
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm transition-shadow hover:shadow-md">
+      {file.thumbnailLink ? (
+        <div className="flex h-40 items-center justify-center overflow-hidden border-b border-brand-50 bg-gray-50">
+          <img src={file.thumbnailLink} alt="" className="h-full w-full object-cover" />
+        </div>
       ) : (
-        <p className="mt-auto pt-3 text-xs font-medium text-gray-300">Driveで開く（連携後に有効）</p>
+        <div className="flex h-40 items-center justify-center border-b border-brand-50 bg-gray-50">
+          <div className={`flex h-14 w-14 items-center justify-center rounded-xl ${TYPE_COLOR[file.type]}`}>
+            <Icon className="h-7 w-7" />
+          </div>
+        </div>
       )}
+
+      <div className="flex flex-1 flex-col p-4">
+        <p className="text-sm font-bold leading-snug text-gray-700">{file.name}</p>
+        {file.excerpt && <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-gray-500">{file.excerpt}…</p>}
+        <p className="mt-2 text-xs text-gray-400">
+          {formatDateJa(file.updatedAt)} ・ {file.updatedBy}
+        </p>
+        {file.webViewLink ? (
+          <a
+            href={file.webViewLink}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-auto pt-3 text-xs font-semibold text-brand-600 hover:underline"
+          >
+            Driveで開く →
+          </a>
+        ) : (
+          <p className="mt-auto pt-3 text-xs font-medium text-gray-300">Driveで開く（連携後に有効）</p>
+        )}
+      </div>
     </div>
   )
 }

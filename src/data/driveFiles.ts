@@ -11,6 +11,10 @@ export interface DriveFileItem {
   updatedBy: string
   /** 実際のGoogleドライブファイルへのリンク（実データ接続時のみ設定される） */
   webViewLink?: string
+  /** ファイルのサムネイル画像URL（実データ接続時のみ設定される） */
+  thumbnailLink?: string
+  /** 本文冒頭の抜粋（実データ接続時のみ設定される） */
+  excerpt?: string
 }
 
 export const driveFiles: Record<string, DriveFileItem[]> = {

@@ -85,6 +85,8 @@ interface DriveApiFile {
   mimeType: string
   modifiedTime: string
   webViewLink?: string
+  thumbnailLink?: string
+  excerpt?: string
   lastModifyingUser?: { displayName?: string }
 }
 
@@ -109,6 +111,8 @@ export async function fetchDriveFiles(path: string): Promise<DriveFileItem[]> {
     updatedAt: f.modifiedTime,
     updatedBy: f.lastModifyingUser?.displayName ?? '不明',
     webViewLink: f.webViewLink,
+    thumbnailLink: f.thumbnailLink,
+    excerpt: f.excerpt,
   }))
 }
 
