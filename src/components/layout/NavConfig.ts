@@ -22,11 +22,10 @@ export const navCategories: NavCategory[] = [
   {
     key: 'company',
     label: 'COMPANY',
-    description: '会社情報・各種申請・お知らせ・実績など',
+    description: '各種申請・キャリア・お知らせ・実績など',
     items: [
-      { label: '会社情報', path: '/company/info', placeholder: true },
-      { label: '各種申請', path: '/company/applications', placeholder: true },
-      { label: 'キャリア', path: '/company/career', placeholder: true },
+      { label: '各種申請', path: '/company/applications', placeholder: true, editable: true },
+      { label: 'キャリア', path: '/company/career', placeholder: true, editable: true },
       { label: 'お知らせ', path: '/company/news' },
       { label: 'スケジュール', path: '/company/schedule' },
       { label: '実績ダッシュボード', path: '/dashboard' },

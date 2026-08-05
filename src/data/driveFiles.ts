@@ -93,4 +93,11 @@ export const driveFiles: Record<string, DriveFileItem[]> = {
   '/landscape-consulting/knowledge': [
     { id: 'lc-k01', name: '景観計画の考え方まとめ', type: 'doc', updatedAt: '2026-04-15', updatedBy: '加藤 沙織' },
   ],
+  '/company/career': [
+    { id: 'co-c01', name: '昇給・給与テーブル', type: 'sheet', updatedAt: '2026-04-01', updatedBy: '管理者 太郎' },
+    { id: 'co-c02', name: '資格取得支援制度 詳細', type: 'doc', updatedAt: '2026-05-10', updatedBy: '管理者 太郎' },
+    { id: 'co-c03', name: 'キャリアアップ図', type: 'slide', updatedAt: '2026-03-20', updatedBy: '管理者 太郎' },
+  ],
+  // 各種申請: Googleフォーム作成中のため、現時点ではファイルなし（打ち合わせで空表示でOKと確認済み）
+  '/company/applications': [],
 }
