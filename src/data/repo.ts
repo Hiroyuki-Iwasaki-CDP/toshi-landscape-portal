@@ -77,9 +77,21 @@ export async function fetchClientAliases(): Promise<ClientAlias[]> {
 
 export async function fetchSalesRecords(): Promise<SalesRecord[]> {
   if (!isSupabaseConfigured) return mockSalesRecords
-  const { data, error } = await mustSupabase().from('sales_records').select('*')
-  if (error) throw error
-  return data.map((row) => ({
+  // Supabaseプロジェクト側の設定でAPIの1リクエストあたりの最大件数が1000件に
+  // 制限されており(.range()で広げても上限は変わらない)、3年分×取引先×部門×
+  // スポット分で1000件を超えるため、1000件ずつページングして全件取得する
+  const pageSize = 1000
+  const rows: any[] = []
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await mustSupabase()
+      .from('sales_records')
+      .select('*')
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    rows.push(...data)
+    if (data.length < pageSize) break
+  }
+  return rows.map((row) => ({
     clientId: row.client_id,
     department: row.department as Department,
     yearMonth: row.year_month,
