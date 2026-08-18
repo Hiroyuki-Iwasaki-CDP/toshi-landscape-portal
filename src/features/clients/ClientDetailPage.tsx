@@ -129,7 +129,7 @@ function ClientInfoTab({ client }: { client: Client }) {
           <p className="text-sm text-gray-400">現在登録されている申し送り事項はありません。</p>
         )}
         <p className="mt-3 text-xs text-gray-400">
-          ※Googleスプレッドシートで管理している申し送り事項を表示しています（このモックではダミーデータです）。内容の追加・修正はスプレッドシート側で行ってください。
+          ※Googleスプレッドシートで管理している申し送り事項を表示しています。内容の追加・修正はスプレッドシート側で行ってください。
         </p>
       </Card>
     </div>

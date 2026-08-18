@@ -197,11 +197,12 @@ export async function fetchFreeeTransactions(): Promise<FreeeTransaction[]> {
 //   2. 前述のサービスアカウントに閲覧者権限で共有し、スプレッドシートIDを控える
 //   3. HANDOVER_NOTES_SPREADSHEET_ID にそのIDを設定し、isHandoverNotesConfigured を true にする
 //      (sheet-read Edge Functionをそのまま流用できるため、バックエンドの追加実装は不要)
-const isHandoverNotesConfigured = false
-const HANDOVER_NOTES_SPREADSHEET_ID = ''
+const isHandoverNotesConfigured = true
+// クライアントが用意した「取引先ごとの申し送り事項」スプレッドシート(2026-08-19共有)
+const HANDOVER_NOTES_SPREADSHEET_ID = '1MEl1gGQsdXcaPrOQVSmB_g6XfIFwt6fy3hYkjPaILqw'
 
 export async function fetchHandoverNotes(): Promise<Record<string, string>> {
-  if (!isHandoverNotesConfigured) {
+  if (!isHandoverNotesConfigured || !isSupabaseConfigured) {
     return Object.fromEntries(mockHandoverNotes.map((n) => [n.clientCode, n.note]))
   }
   const url = `${supabaseUrl}/functions/v1/sheet-read?spreadsheetId=${encodeURIComponent(HANDOVER_NOTES_SPREADSHEET_ID)}`
