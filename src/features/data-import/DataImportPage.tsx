@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertTriangle, XCircle, X, Download } from 'lucide-react'
+import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertTriangle, XCircle, X, Download, Link2, RefreshCw } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
@@ -7,6 +7,7 @@ import { fetchClients, fetchClientAliases } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { parseCsv } from '../../lib/csv'
 import { formatYen } from '../../lib/format'
+import { connectToFreeeMock, fetchFreeeTransactionsMock, type FreeeTransaction } from '../../data/freeeMock'
 import { DEPARTMENT_LABEL, DEPARTMENTS, type Client, type ClientAlias, type Department } from '../../types'
 
 // 「取引先コード・名寄せ設計メモ」で想定されているCSV形式のサンプル
@@ -89,7 +90,46 @@ function resolveRow(
   return { ...base, resolvedClientId: client ? clientId : null, resolvedDepartment }
 }
 
-function buildRows(text: string, aliasMap: Map<string, string>, clientsById: Map<string, Client>): ParsedRow[] {
+interface RawRowInput {
+  rawClientName: string
+  rawYearMonth: string
+  rawAmount: string
+  rawDepartment: string
+  note: string
+}
+
+function buildRow(
+  key: number,
+  raw: RawRowInput,
+  aliasMap: Map<string, string>,
+  clientsById: Map<string, Client>,
+  seenKeys: Map<string, number>,
+): ParsedRow {
+  const { rawClientName, rawYearMonth, rawAmount, rawDepartment, note } = raw
+  const yearMonth = parseYearMonth(rawYearMonth)
+  const amount = parseAmount(rawAmount)
+
+  const errors: string[] = []
+  if (!rawClientName) errors.push('取引先名が空です')
+  if (!rawYearMonth || yearMonth === null) errors.push('計上年月の形式が不正です（例: 2026-07）')
+  if (!rawAmount || amount === null) errors.push('請求額が数値ではありません')
+
+  const warnings: string[] = []
+  if (amount !== null && amount < 0) warnings.push('金額がマイナスです（返金等の可能性）')
+
+  const dupKey = `${normalizeName(rawClientName)}__${yearMonth ?? rawYearMonth}`
+  const firstSeenAt = seenKeys.get(dupKey)
+  if (firstSeenAt !== undefined) {
+    warnings.push(`${firstSeenAt + 2}行目と取引先・年月が重複しています`)
+  } else {
+    seenKeys.set(dupKey, key)
+  }
+
+  const base = { key, rawClientName, rawYearMonth, rawAmount, rawDepartment, note, yearMonth, amount, errors, warnings }
+  return resolveRow(base, aliasMap, clientsById)
+}
+
+function buildRowsFromCsv(text: string, aliasMap: Map<string, string>, clientsById: Map<string, Client>): ParsedRow[] {
   const table = parseCsv(text)
   if (table.length === 0) return []
   const headers = table[0]
@@ -101,35 +141,44 @@ function buildRows(text: string, aliasMap: Map<string, string>, clientsById: Map
 
   const seenKeys = new Map<string, number>()
 
-  return table.slice(1).map((cols, i) => {
-    const rawClientName = idxClientName >= 0 ? (cols[idxClientName] ?? '').trim() : ''
-    const rawYearMonth = idxYearMonth >= 0 ? (cols[idxYearMonth] ?? '').trim() : ''
-    const rawAmount = idxAmount >= 0 ? (cols[idxAmount] ?? '').trim() : ''
-    const rawDepartment = idxDepartment >= 0 ? (cols[idxDepartment] ?? '').trim() : ''
-    const note = idxNote >= 0 ? (cols[idxNote] ?? '').trim() : ''
+  return table.slice(1).map((cols, i) =>
+    buildRow(
+      i,
+      {
+        rawClientName: idxClientName >= 0 ? (cols[idxClientName] ?? '').trim() : '',
+        rawYearMonth: idxYearMonth >= 0 ? (cols[idxYearMonth] ?? '').trim() : '',
+        rawAmount: idxAmount >= 0 ? (cols[idxAmount] ?? '').trim() : '',
+        rawDepartment: idxDepartment >= 0 ? (cols[idxDepartment] ?? '').trim() : '',
+        note: idxNote >= 0 ? (cols[idxNote] ?? '').trim() : '',
+      },
+      aliasMap,
+      clientsById,
+      seenKeys,
+    ),
+  )
+}
 
-    const yearMonth = parseYearMonth(rawYearMonth)
-    const amount = parseAmount(rawAmount)
-
-    const errors: string[] = []
-    if (!rawClientName) errors.push('取引先名が空です')
-    if (!rawYearMonth || yearMonth === null) errors.push('計上年月の形式が不正です（例: 2026-07）')
-    if (!rawAmount || amount === null) errors.push('請求額が数値ではありません')
-
-    const warnings: string[] = []
-    if (amount !== null && amount < 0) warnings.push('金額がマイナスです（返金等の可能性）')
-
-    const dupKey = `${normalizeName(rawClientName)}__${yearMonth ?? rawYearMonth}`
-    const firstSeenAt = seenKeys.get(dupKey)
-    if (firstSeenAt !== undefined) {
-      warnings.push(`${firstSeenAt + 2}行目と取引先・年月が重複しています`)
-    } else {
-      seenKeys.set(dupKey, i)
-    }
-
-    const base = { key: i, rawClientName, rawYearMonth, rawAmount, rawDepartment, note, yearMonth, amount, errors, warnings }
-    return resolveRow(base, aliasMap, clientsById)
-  })
+function buildRowsFromFreee(
+  transactions: FreeeTransaction[],
+  aliasMap: Map<string, string>,
+  clientsById: Map<string, Client>,
+): ParsedRow[] {
+  const seenKeys = new Map<string, number>()
+  return transactions.map((t, i) =>
+    buildRow(
+      i,
+      {
+        rawClientName: t.partnerName.trim(),
+        rawYearMonth: t.date.slice(0, 7),
+        rawAmount: String(t.amount),
+        rawDepartment: (t.department ?? '').trim(),
+        note: (t.memo ?? '').trim(),
+      },
+      aliasMap,
+      clientsById,
+      seenKeys,
+    ),
+  )
 }
 
 function rowStatus(r: ParsedRow): 'error' | 'matched' | 'unresolved' {
@@ -153,12 +202,15 @@ function SummaryStat({ label, value, tone = 'gray' }: { label: string; value: nu
   )
 }
 
+type ImportSource = 'csv' | 'freee'
+
 export function DataImportPage() {
   const inputRef = useRef<HTMLInputElement>(null)
   const { data: fetchedClients, loading: clientsLoading } = useAsyncData(fetchClients, [])
   const { data: fetchedAliases, loading: aliasesLoading, error: aliasesError } = useAsyncData(fetchClientAliases, [])
   const masterDataLoading = clientsLoading || aliasesLoading
 
+  const [source, setSource] = useState<ImportSource>('csv')
   const [sessionClients, setSessionClients] = useState<Client[]>([])
   const [extraAliases, setExtraAliases] = useState<ClientAlias[]>([])
   const [rows, setRows] = useState<ParsedRow[] | null>(null)
@@ -166,6 +218,9 @@ export function DataImportPage() {
   const [confirmed, setConfirmed] = useState(false)
   const [newClientDrafts, setNewClientDrafts] = useState<Record<number, string>>({})
   const [showNewClientForm, setShowNewClientForm] = useState<Record<number, boolean>>({})
+  const [freeeConnecting, setFreeeConnecting] = useState(false)
+  const [freeeCompanyName, setFreeeCompanyName] = useState<string | null>(null)
+  const [freeeFetching, setFreeeFetching] = useState(false)
 
   const allClients = useMemo(() => [...(fetchedClients ?? []), ...sessionClients], [fetchedClients, sessionClients])
   const clientsById = useMemo(() => new Map(allClients.map((c) => [c.id, c])), [allClients])
@@ -204,7 +259,7 @@ export function DataImportPage() {
     const reader = new FileReader()
     reader.onload = () => {
       const text = String(reader.result ?? '')
-      setRows(buildRows(text, aliasMap, clientsById))
+      setRows(buildRowsFromCsv(text, aliasMap, clientsById))
     }
     reader.readAsText(selected, 'utf-8')
   }
@@ -215,7 +270,31 @@ export function DataImportPage() {
     setConfirmed(false)
     setShowNewClientForm({})
     setNewClientDrafts({})
+    setFreeeCompanyName(null)
     if (inputRef.current) inputRef.current.value = ''
+  }
+
+  function handleSourceChange(next: ImportSource) {
+    setSource(next)
+    handleReset()
+  }
+
+  async function handleConnectFreee() {
+    setFreeeConnecting(true)
+    const { companyName } = await connectToFreeeMock()
+    setFreeeCompanyName(companyName)
+    setFreeeConnecting(false)
+  }
+
+  async function handleFetchFreeeTransactions() {
+    setFreeeFetching(true)
+    setConfirmed(false)
+    setShowNewClientForm({})
+    setNewClientDrafts({})
+    const transactions = await fetchFreeeTransactionsMock()
+    setRows(buildRowsFromFreee(transactions, aliasMap, clientsById))
+    setFileName(`freee連携データ（モック・${transactions.length}件）`)
+    setFreeeFetching(false)
   }
 
   function handleDownloadSample() {
@@ -278,74 +357,154 @@ export function DataImportPage() {
       <div>
         <h1 className="text-lg font-bold text-brand-800 sm:text-xl">データ取込</h1>
         <p className="text-sm text-gray-400">
-          税理士事務所から提供されるCSVファイルから実績データ（取引先×年月×金額）を取り込みます。取引先名は登録済みの別名辞書と自動照合し、未紐付けの場合はこの画面で手動で紐付けます。
+          税理士事務所から提供されるCSVファイル、または将来的にはfreee会計から実績データ（取引先×年月×金額）を取り込みます。取引先名は登録済みの別名辞書と自動照合し、未紐付けの場合はこの画面で手動で紐付けます。
         </p>
       </div>
 
-      <Card title="CSVフォーマット">
-        <ul className="space-y-1 text-sm text-gray-600">
-          <li>
-            <span className="font-semibold text-gray-700">計上年月</span>（必須・例: 2026-07）
-          </li>
-          <li>
-            <span className="font-semibold text-gray-700">取引先名</span>（必須）
-          </li>
-          <li>
-            <span className="font-semibold text-gray-700">請求額(税抜)</span>（必須・数値）
-          </li>
-          <li>
-            <span className="font-semibold text-gray-700">部門・補助科目</span>（任意 — 未入力の場合は取引先マスタの主管部門を自動で使用）
-          </li>
-          <li>
-            <span className="font-semibold text-gray-700">摘要</span>（任意）
-          </li>
-        </ul>
-        <p className="mt-3 text-xs text-gray-400">
-          文字コードはUTF-8を想定しています。列の順序は問いませんが、上記の見出し名（または部分一致）を含む列見出しが必要です。
-        </p>
-        <div className="mt-4">
-          <Button variant="secondary" className="text-xs" onClick={handleDownloadSample}>
-            <Download className="h-4 w-4" />
-            サンプルCSVをダウンロード
-          </Button>
-        </div>
-      </Card>
-
-      <Card title="ファイル選択">
-        {masterDataLoading ? (
-          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-100 bg-brand-50/30 px-4 py-10 text-center">
-            <p className="text-sm text-gray-400">取引先マスタを読み込み中…</p>
-          </div>
-        ) : (
-          <label
-            htmlFor="import-file"
-            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-200 bg-brand-50/50 px-4 py-10 text-center transition-colors hover:bg-brand-50"
+      <div className="flex gap-1 rounded-lg border border-brand-100 bg-white p-1">
+        {(
+          [
+            ['csv', 'CSVファイル'],
+            ['freee', 'freee連携（モック）'],
+          ] as [ImportSource, string][]
+        ).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => handleSourceChange(key)}
+            className={`flex-1 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
+              source === key ? 'bg-brand-600 text-white' : 'text-gray-500 hover:bg-brand-50'
+            }`}
           >
-            <UploadCloud className="h-8 w-8 text-brand-400" />
-            <p className="text-sm font-semibold text-brand-700">クリックしてファイルを選択</p>
-            <p className="text-xs text-gray-400">CSV (.csv) に対応</p>
-            <input ref={inputRef} id="import-file" type="file" accept=".csv" className="hidden" onChange={handleFileChange} />
-          </label>
-        )}
+            {label}
+          </button>
+        ))}
+      </div>
 
-        {aliasesError && (
-          <p className="mt-2 text-xs text-amber-600">
-            別名辞書の取得に失敗しました（{aliasesError}）。取引先名の完全一致のみで自動照合します。
-          </p>
-        )}
-
-        {fileName && (
-          <div className="mt-4 flex items-center justify-between rounded-lg border border-brand-100 bg-white px-4 py-3">
-            <div className="flex min-w-0 items-center gap-2">
-              <FileSpreadsheet className="h-5 w-5 shrink-0 text-brand-500" />
-              <span className="truncate text-sm text-gray-700">{fileName}</span>
+      {source === 'csv' ? (
+        <>
+          <Card title="CSVフォーマット">
+            <ul className="space-y-1 text-sm text-gray-600">
+              <li>
+                <span className="font-semibold text-gray-700">計上年月</span>（必須・例: 2026-07）
+              </li>
+              <li>
+                <span className="font-semibold text-gray-700">取引先名</span>（必須）
+              </li>
+              <li>
+                <span className="font-semibold text-gray-700">請求額(税抜)</span>（必須・数値）
+              </li>
+              <li>
+                <span className="font-semibold text-gray-700">部門・補助科目</span>（任意 — 未入力の場合は取引先マスタの主管部門を自動で使用）
+              </li>
+              <li>
+                <span className="font-semibold text-gray-700">摘要</span>（任意）
+              </li>
+            </ul>
+            <p className="mt-3 text-xs text-gray-400">
+              文字コードはUTF-8を想定しています。列の順序は問いませんが、上記の見出し名（または部分一致）を含む列見出しが必要です。
+            </p>
+            <div className="mt-4">
+              <Button variant="secondary" className="text-xs" onClick={handleDownloadSample}>
+                <Download className="h-4 w-4" />
+                サンプルCSVをダウンロード
+              </Button>
             </div>
-            <button onClick={handleReset} className="rounded p-1 text-gray-400 hover:bg-gray-100" aria-label="ファイルを取り消す">
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-      </Card>
+          </Card>
+
+          <Card title="ファイル選択">
+            {masterDataLoading ? (
+              <div className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-100 bg-brand-50/30 px-4 py-10 text-center">
+                <p className="text-sm text-gray-400">取引先マスタを読み込み中…</p>
+              </div>
+            ) : (
+              <label
+                htmlFor="import-file"
+                className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-200 bg-brand-50/50 px-4 py-10 text-center transition-colors hover:bg-brand-50"
+              >
+                <UploadCloud className="h-8 w-8 text-brand-400" />
+                <p className="text-sm font-semibold text-brand-700">クリックしてファイルを選択</p>
+                <p className="text-xs text-gray-400">CSV (.csv) に対応</p>
+                <input ref={inputRef} id="import-file" type="file" accept=".csv" className="hidden" onChange={handleFileChange} />
+              </label>
+            )}
+
+            {aliasesError && (
+              <p className="mt-2 text-xs text-amber-600">
+                別名辞書の取得に失敗しました（{aliasesError}）。取引先名の完全一致のみで自動照合します。
+              </p>
+            )}
+
+            {fileName && (
+              <div className="mt-4 flex items-center justify-between rounded-lg border border-brand-100 bg-white px-4 py-3">
+                <div className="flex min-w-0 items-center gap-2">
+                  <FileSpreadsheet className="h-5 w-5 shrink-0 text-brand-500" />
+                  <span className="truncate text-sm text-gray-700">{fileName}</span>
+                </div>
+                <button onClick={handleReset} className="rounded p-1 text-gray-400 hover:bg-gray-100" aria-label="ファイルを取り消す">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </Card>
+        </>
+      ) : (
+        <Card title="freee会計 連携（モック）">
+          <p className="text-sm text-gray-600">
+            クライアントより「データ取込はfreeeとの連携を検討している」とのご要望を受け、実際のfreee
+            APIとはまだ接続していませんが、接続できた場合にどのような画面・データの流れになるかを確認するためのモックです。
+          </p>
+          <p className="mt-2 text-xs text-amber-600">
+            ※実際のfreee連携には freee 側でのAPI利用申請・OAuth認可の設定が別途必要です（未着手）。
+          </p>
+
+          {!freeeCompanyName ? (
+            <div className="mt-4">
+              <Button onClick={handleConnectFreee} disabled={freeeConnecting} className="text-xs">
+                <Link2 className="h-4 w-4" />
+                {freeeConnecting ? '接続中…' : 'freeeに接続する（モック）'}
+              </Button>
+            </div>
+          ) : (
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center justify-between rounded-lg border border-brand-100 bg-white px-4 py-3">
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <Link2 className="h-4 w-4 text-brand-500" />
+                  接続先: <span className="font-semibold">{freeeCompanyName}</span>
+                </div>
+                <button
+                  onClick={() => setFreeeCompanyName(null)}
+                  className="rounded p-1 text-gray-400 hover:bg-gray-100"
+                  aria-label="接続を解除"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <Button onClick={handleFetchFreeeTransactions} disabled={freeeFetching} className="text-xs">
+                <RefreshCw className="h-4 w-4" />
+                {freeeFetching ? '取得中…' : '取引データを取得'}
+              </Button>
+            </div>
+          )}
+
+          {aliasesError && (
+            <p className="mt-2 text-xs text-amber-600">
+              別名辞書の取得に失敗しました（{aliasesError}）。取引先名の完全一致のみで自動照合します。
+            </p>
+          )}
+
+          {fileName && (
+            <div className="mt-4 flex items-center justify-between rounded-lg border border-brand-100 bg-white px-4 py-3">
+              <div className="flex min-w-0 items-center gap-2">
+                <FileSpreadsheet className="h-5 w-5 shrink-0 text-brand-500" />
+                <span className="truncate text-sm text-gray-700">{fileName}</span>
+              </div>
+              <button onClick={handleReset} className="rounded p-1 text-gray-400 hover:bg-gray-100" aria-label="取消">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+        </Card>
+      )}
 
       {rows && summary && (
         <>
