@@ -11,6 +11,7 @@ import { initialUsers } from './users'
 import { driveFiles as mockDriveFiles, type DriveFileItem, type DriveFileType } from './driveFiles'
 import { driveFolderIds } from './driveFolderIds'
 import { MOCK_FREEE_COMPANY_NAME, mockFreeeTransactions, type FreeeTransaction } from './freeeMock'
+import { mockHandoverNotes } from './handoverNotesMock'
 
 function mustSupabase() {
   if (!supabase) throw new Error('Supabaseが設定されていません')
@@ -184,6 +185,42 @@ export async function fetchFreeeTransactions(): Promise<FreeeTransaction[]> {
     return mockFreeeTransactions
   }
   throw new Error('freee連携は未実装です')
+}
+
+// 取引先ごとの申し送り事項（Googleスプレッドシート連携）
+// クライアントの要望により、担当者間の申し送り事項をスプレッドシートで管理し、
+// 取引先詳細ページに表示する。drive-list/sheet-read/freee連携と同じ
+// 「単一窓口+設定フラグ」の構造にしてあるので、実スプレッドシートが
+// 用意でき次第すぐに切り替えられる。
+// 実装時にやること:
+//   1. クライアント側でスプレッドシートを作成（1行目の見出し: 取引先コード, 申し送り事項）
+//   2. 前述のサービスアカウントに閲覧者権限で共有し、スプレッドシートIDを控える
+//   3. HANDOVER_NOTES_SPREADSHEET_ID にそのIDを設定し、isHandoverNotesConfigured を true にする
+//      (sheet-read Edge Functionをそのまま流用できるため、バックエンドの追加実装は不要)
+const isHandoverNotesConfigured = false
+const HANDOVER_NOTES_SPREADSHEET_ID = ''
+
+export async function fetchHandoverNotes(): Promise<Record<string, string>> {
+  if (!isHandoverNotesConfigured) {
+    return Object.fromEntries(mockHandoverNotes.map((n) => [n.clientCode, n.note]))
+  }
+  const url = `${supabaseUrl}/functions/v1/sheet-read?spreadsheetId=${encodeURIComponent(HANDOVER_NOTES_SPREADSHEET_ID)}`
+  const res = await fetch(url, {
+    headers: {
+      apikey: supabasePublishableKey!,
+      Authorization: `Bearer ${supabasePublishableKey}`,
+    },
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error))
+
+  const records = data.records as Record<string, string>[]
+  const map: Record<string, string> = {}
+  for (const r of records) {
+    const code = r['取引先コード']
+    if (code) map[code] = r['申し送り事項'] ?? ''
+  }
+  return map
 }
 
 export async function fetchUsers(): Promise<UserRecord[]> {

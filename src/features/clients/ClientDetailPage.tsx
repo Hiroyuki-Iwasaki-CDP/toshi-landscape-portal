@@ -6,7 +6,7 @@ import { StatCard } from '../../components/ui/StatCard'
 import { Badge } from '../../components/ui/Badge'
 import { MonthlySalesChart } from '../../components/charts/MonthlySalesChart'
 import { DeptShareChart } from '../../components/charts/DeptShareChart'
-import { fetchClients, fetchSalesRecords } from '../../data/repo'
+import { fetchClients, fetchSalesRecords, fetchHandoverNotes } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { FISCAL_YEAR_OPTIONS } from '../../data/sales'
 import { completionReports } from '../../data/reports'
@@ -103,17 +103,36 @@ function ClientInfoTab({ client }: { client: Client }) {
     ['電話番号', client.phone],
     ['契約開始日', formatDateJa(client.contractStartDate)],
   ]
+
+  const { data: handoverNotes, loading: notesLoading } = useAsyncData(fetchHandoverNotes, [])
+  const note = handoverNotes?.[client.code]
+
   return (
-    <Card title="基本情報">
-      <dl className="divide-y divide-brand-50">
-        {rows.map(([label, value]) => (
-          <div key={label} className="flex flex-col gap-1 py-3 first:pt-0 sm:flex-row sm:items-center sm:gap-4">
-            <dt className="w-32 shrink-0 text-xs font-semibold text-gray-400">{label}</dt>
-            <dd className="text-sm text-gray-700">{value}</dd>
-          </div>
-        ))}
-      </dl>
-    </Card>
+    <div className="space-y-4">
+      <Card title="基本情報">
+        <dl className="divide-y divide-brand-50">
+          {rows.map(([label, value]) => (
+            <div key={label} className="flex flex-col gap-1 py-3 first:pt-0 sm:flex-row sm:items-center sm:gap-4">
+              <dt className="w-32 shrink-0 text-xs font-semibold text-gray-400">{label}</dt>
+              <dd className="text-sm text-gray-700">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </Card>
+
+      <Card title="申し送り事項">
+        {notesLoading ? (
+          <p className="text-sm text-gray-400">読み込み中…</p>
+        ) : note ? (
+          <p className="whitespace-pre-wrap text-sm text-gray-700">{note}</p>
+        ) : (
+          <p className="text-sm text-gray-400">現在登録されている申し送り事項はありません。</p>
+        )}
+        <p className="mt-3 text-xs text-gray-400">
+          ※Googleスプレッドシートで管理している申し送り事項を表示しています（このモックではダミーデータです）。内容の追加・修正はスプレッドシート側で行ってください。
+        </p>
+      </Card>
+    </div>
   )
 }
 
