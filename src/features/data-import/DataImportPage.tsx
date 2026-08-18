@@ -3,11 +3,11 @@ import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertTriangle, XCircle, X, 
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
-import { fetchClients, fetchClientAliases } from '../../data/repo'
+import { fetchClients, fetchClientAliases, connectToFreee, fetchFreeeTransactions } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { parseCsv } from '../../lib/csv'
 import { formatYen } from '../../lib/format'
-import { connectToFreeeMock, fetchFreeeTransactionsMock, type FreeeTransaction } from '../../data/freeeMock'
+import type { FreeeTransaction } from '../../data/freeeMock'
 import { DEPARTMENT_LABEL, DEPARTMENTS, type Client, type ClientAlias, type Department } from '../../types'
 
 // 「取引先コード・名寄せ設計メモ」で想定されているCSV形式のサンプル
@@ -281,7 +281,7 @@ export function DataImportPage() {
 
   async function handleConnectFreee() {
     setFreeeConnecting(true)
-    const { companyName } = await connectToFreeeMock()
+    const { companyName } = await connectToFreee()
     setFreeeCompanyName(companyName)
     setFreeeConnecting(false)
   }
@@ -291,7 +291,7 @@ export function DataImportPage() {
     setConfirmed(false)
     setShowNewClientForm({})
     setNewClientDrafts({})
-    const transactions = await fetchFreeeTransactionsMock()
+    const transactions = await fetchFreeeTransactions()
     setRows(buildRowsFromFreee(transactions, aliasMap, clientsById))
     setFileName(`freee連携データ（モック・${transactions.length}件）`)
     setFreeeFetching(false)

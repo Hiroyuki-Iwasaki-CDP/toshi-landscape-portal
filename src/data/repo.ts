@@ -10,6 +10,7 @@ import { salesRecords as mockSalesRecords } from './sales'
 import { initialUsers } from './users'
 import { driveFiles as mockDriveFiles, type DriveFileItem, type DriveFileType } from './driveFiles'
 import { driveFolderIds } from './driveFolderIds'
+import { MOCK_FREEE_COMPANY_NAME, mockFreeeTransactions, type FreeeTransaction } from './freeeMock'
 
 function mustSupabase() {
   if (!supabase) throw new Error('Supabaseが設定されていません')
@@ -154,6 +155,34 @@ export async function fetchAppSheetTestData(): Promise<AppSheetData> {
   const data = await res.json()
   if (!res.ok) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error))
   return data as AppSheetData
+}
+
+// freee会計連携（データ取込ページ用）
+// クライアントよりfreeeとの連携方針がほぼ確定した(2026-08-18)ため、いつでも実API接続に
+// 差し替えられるよう drive-list/sheet-read と同じ「単一窓口+設定フラグ」の形にしてある。
+// 実装時にやること:
+//   1. freee開発者コンソールでアプリを作成し、client_id/secretを発行
+//   2. OAuth認可コードを受け取るリダイレクト先(このポータル or 専用ページ)を用意
+//   3. Supabase Edge Function(例: freee-token-exchange, freee-transactions)を追加し、
+//      認可コード→アクセストークン交換、トークンでの取引一覧取得をサーバー側で行う
+//      (フロントにclient_secretを露出させないこと。drive-list/sheet-readと同じ設計方針)
+//   4. isFreeeConfigured を true にし、下のダミー分岐を実際のEdge Function呼び出しに置き換える
+const isFreeeConfigured = false
+
+export async function connectToFreee(): Promise<{ companyName: string }> {
+  if (!isFreeeConfigured) {
+    await new Promise((resolve) => setTimeout(resolve, 700))
+    return { companyName: MOCK_FREEE_COMPANY_NAME }
+  }
+  throw new Error('freee連携は未実装です')
+}
+
+export async function fetchFreeeTransactions(): Promise<FreeeTransaction[]> {
+  if (!isFreeeConfigured) {
+    await new Promise((resolve) => setTimeout(resolve, 900))
+    return mockFreeeTransactions
+  }
+  throw new Error('freee連携は未実装です')
 }
 
 export async function fetchUsers(): Promise<UserRecord[]> {
