@@ -55,19 +55,41 @@ export function PerformanceDashboardPage() {
 
   const monthlyChartData = useMemo(() => {
     if (periodType === 'monthly') {
-      const byMonth = new Map<number, number>()
+      const byMonth = new Map<number, { annual: number; spot: number }>()
       for (const r of filteredRecords) {
         const m = monthOf(r.yearMonth)
-        byMonth.set(m, (byMonth.get(m) ?? 0) + r.amount)
+        const entry = byMonth.get(m) ?? { annual: 0, spot: 0 }
+        entry[r.contractType] += r.amount
+        byMonth.set(m, entry)
       }
-      return FISCAL_MONTH_ORDER.map((m) => ({ label: `${m}月`, amount: byMonth.get(m) ?? 0 }))
+      return FISCAL_MONTH_ORDER.map((m) => ({
+        label: `${m}月`,
+        annual: byMonth.get(m)?.annual ?? 0,
+        spot: byMonth.get(m)?.spot ?? 0,
+      }))
     }
-    const byYear = new Map<number, number>()
+    const byYear = new Map<number, { annual: number; spot: number }>()
     for (const r of filteredRecords) {
-      byYear.set(r.fiscalYear, (byYear.get(r.fiscalYear) ?? 0) + r.amount)
+      const entry = byYear.get(r.fiscalYear) ?? { annual: 0, spot: 0 }
+      entry[r.contractType] += r.amount
+      byYear.set(r.fiscalYear, entry)
     }
-    return FISCAL_YEAR_OPTIONS.map((y) => ({ label: `${y}年度`, amount: byYear.get(y) ?? 0 }))
+    return FISCAL_YEAR_OPTIONS.map((y) => ({
+      label: `${y}年度`,
+      annual: byYear.get(y)?.annual ?? 0,
+      spot: byYear.get(y)?.spot ?? 0,
+    }))
   }, [filteredRecords, periodType])
+
+  const contractTypeTotals = useMemo(() => {
+    return filteredRecords.reduce(
+      (acc, r) => {
+        acc[r.contractType] += r.amount
+        return acc
+      },
+      { annual: 0, spot: 0 },
+    )
+  }, [filteredRecords])
 
   const deptShareData = useMemo(() => {
     const byDept = new Map<Department, number>()
@@ -188,6 +210,10 @@ export function PerformanceDashboardPage() {
       ) : (
         <>
           <Card title={periodType === 'monthly' ? `${fiscalYear}年度 月別売上推移` : '年度別売上推移'}>
+            <p className="mb-2 text-xs text-gray-400">
+              年間契約: <span className="font-semibold text-brand-700">{formatYen(contractTypeTotals.annual)}</span>
+              　スポット: <span className="font-semibold text-amber-600">{formatYen(contractTypeTotals.spot)}</span>
+            </p>
             <MonthlySalesChart data={monthlyChartData} />
           </Card>
 

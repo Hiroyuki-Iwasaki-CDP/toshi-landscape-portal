@@ -124,10 +124,26 @@ function buildSales() {
             department,
             year_month: yearMonth,
             fiscal_year: fiscalYear,
+            contract_type: 'annual',
             amount,
             man_days: manDays,
             waste_kg: wasteKg,
           })
+
+          const spotChance = seededRandom(seed + '-spot')
+          if (spotChance > 0.78) {
+            const spotFactor = 0.15 + seededRandom(seed + '-spot-2') * 0.3
+            records.push({
+              client_id: client.id,
+              department,
+              year_month: yearMonth,
+              fiscal_year: fiscalYear,
+              contract_type: 'spot',
+              amount: Math.round(amount * spotFactor),
+              man_days: Math.max(0, Math.round(manDays * spotFactor)),
+              waste_kg: Math.max(0, Math.round(wasteKg * spotFactor)),
+            })
+          }
         }
       }
     }

@@ -83,6 +83,7 @@ export async function fetchSalesRecords(): Promise<SalesRecord[]> {
     department: row.department as Department,
     yearMonth: row.year_month,
     fiscalYear: row.fiscal_year,
+    contractType: (row.contract_type ?? 'annual') as SalesRecord['contractType'],
     amount: Number(row.amount),
     manDays: Number(row.man_days),
     wasteKg: Number(row.waste_kg),

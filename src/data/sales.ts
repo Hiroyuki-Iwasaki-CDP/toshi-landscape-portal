@@ -82,10 +82,27 @@ function buildSales(): SalesRecord[] {
             department,
             yearMonth,
             fiscalYear,
+            contractType: 'annual',
             amount,
             manDays,
             wasteKg,
           })
+
+          // 一部の月は年間契約に加えてスポット(単発)の売上が発生する
+          const spotChance = seededRandom(seed + '-spot')
+          if (spotChance > 0.78) {
+            const spotFactor = 0.15 + seededRandom(seed + '-spot-2') * 0.3
+            records.push({
+              clientId: client.id,
+              department,
+              yearMonth,
+              fiscalYear,
+              contractType: 'spot',
+              amount: Math.round(amount * spotFactor),
+              manDays: Math.max(0, Math.round(manDays * spotFactor)),
+              wasteKg: Math.max(0, Math.round(wasteKg * spotFactor)),
+            })
+          }
         }
       }
     }

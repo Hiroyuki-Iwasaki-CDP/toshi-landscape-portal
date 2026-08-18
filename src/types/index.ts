@@ -60,12 +60,21 @@ export interface ClientAlias {
   createdBy: string
 }
 
-/** 売上データ（取引先×部門×年月） */
+/** 契約種別（年間契約による継続売上か、単発のスポット売上か） */
+export type ContractType = 'annual' | 'spot'
+
+export const CONTRACT_TYPE_LABEL: Record<ContractType, string> = {
+  annual: '年間契約',
+  spot: 'スポット',
+}
+
+/** 売上データ（取引先×部門×年月×契約種別） */
 export interface SalesRecord {
   clientId: string
   department: Department
   yearMonth: string // YYYY-MM
   fiscalYear: number
+  contractType: ContractType
   amount: number // 円
   manDays: number // 人工
   wasteKg: number // ごみ量(kg)

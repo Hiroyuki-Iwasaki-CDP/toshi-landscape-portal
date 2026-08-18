@@ -150,11 +150,18 @@ function ClientDashboardTab({ clientId }: { clientId: string }) {
   )
 
   const monthlyData = useMemo(() => {
-    const byMonth = new Map<number, number>()
+    const byMonth = new Map<number, { annual: number; spot: number }>()
     for (const r of filtered) {
-      byMonth.set(monthOf(r.yearMonth), (byMonth.get(monthOf(r.yearMonth)) ?? 0) + r.amount)
+      const m = monthOf(r.yearMonth)
+      const entry = byMonth.get(m) ?? { annual: 0, spot: 0 }
+      entry[r.contractType] += r.amount
+      byMonth.set(m, entry)
     }
-    return FISCAL_MONTH_ORDER.map((m) => ({ label: `${m}月`, amount: byMonth.get(m) ?? 0 }))
+    return FISCAL_MONTH_ORDER.map((m) => ({
+      label: `${m}月`,
+      annual: byMonth.get(m)?.annual ?? 0,
+      spot: byMonth.get(m)?.spot ?? 0,
+    }))
   }, [filtered])
 
   const deptData = useMemo(() => {
