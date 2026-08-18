@@ -6,7 +6,7 @@ import { MonthlySalesChart } from '../../components/charts/MonthlySalesChart'
 import { DeptShareChart } from '../../components/charts/DeptShareChart'
 import { ClientRankingChart } from '../../components/charts/ClientRankingChart'
 import { FISCAL_YEAR_OPTIONS } from '../../data/sales'
-import { fetchClients, fetchSalesRecords } from '../../data/repo'
+import { fetchClients, fetchSalesRecords, fetchHandoverNotes } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { DEPARTMENT_LABEL, DEPARTMENTS, type Department } from '../../types'
 import { formatYen, formatNumber } from '../../lib/format'
@@ -26,6 +26,7 @@ export function PerformanceDashboardPage() {
 
   const { data: salesRecords, loading: salesLoading } = useAsyncData(fetchSalesRecords, [])
   const { data: clients, loading: clientsLoading } = useAsyncData(fetchClients, [])
+  const { data: handoverNotes } = useAsyncData(fetchHandoverNotes, [])
 
   const [periodType, setPeriodType] = useState<PeriodType>('monthly')
   const [fiscalYear, setFiscalYear] = useState<number>(FISCAL_YEAR_OPTIONS[FISCAL_YEAR_OPTIONS.length - 1])
@@ -100,6 +101,9 @@ export function PerformanceDashboardPage() {
       (d) => d.amount > 0,
     )
   }, [filteredRecords])
+
+  const selectedClient = useMemo(() => (clients ?? []).find((c) => c.id === clientId) ?? null, [clients, clientId])
+  const selectedClientNote = selectedClient ? handoverNotes?.[selectedClient.code] : undefined
 
   const clientRankingData = useMemo(() => {
     const byClient = new Map<string, number>()
@@ -193,6 +197,16 @@ export function PerformanceDashboardPage() {
           </div>
         </div>
       </Card>
+
+      {selectedClient && (
+        <Card title={`申し送り事項（${selectedClient.name}）`}>
+          {selectedClientNote ? (
+            <p className="whitespace-pre-wrap text-sm text-gray-700">{selectedClientNote}</p>
+          ) : (
+            <p className="text-sm text-gray-400">現在登録されている申し送り事項はありません。</p>
+          )}
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="売上合計" value={formatYen(totals.amount)} icon={<Coins className="h-5 w-5" />} masked={isMasked} />
