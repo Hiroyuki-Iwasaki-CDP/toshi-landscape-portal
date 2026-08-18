@@ -169,6 +169,15 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
     })
   }, [localFiles, query])
 
+  const legendItems = useMemo(() => {
+    const seen = new Map<string, { gradient: string; label: string }>()
+    for (const f of localFiles) {
+      const { gradient, label } = getManualImagery(f.name)
+      if (!seen.has(label)) seen.set(label, { gradient, label })
+    }
+    return [...seen.values()]
+  }, [localFiles])
+
   return (
     <div className="space-y-4">
       <div>
@@ -198,6 +207,18 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
           className="w-full rounded-xl border border-brand-200 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
         />
       </div>
+
+      {!loading && legendItems.length > 1 && (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-xl border border-brand-100 bg-white px-3 py-2">
+          <span className="text-xs font-semibold text-gray-400">色分け:</span>
+          {legendItems.map((item) => (
+            <span key={item.label} className="flex items-center gap-1.5 text-xs text-gray-600">
+              <span className={`h-2.5 w-2.5 shrink-0 rounded-full bg-gradient-to-br ${item.gradient}`} />
+              {item.label}
+            </span>
+          ))}
+        </div>
+      )}
 
       {loading ? (
         <Card>
