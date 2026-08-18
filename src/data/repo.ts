@@ -11,7 +11,7 @@ import { initialUsers } from './users'
 import { driveFiles as mockDriveFiles, type DriveFileItem, type DriveFileType } from './driveFiles'
 import { driveFolderIds } from './driveFolderIds'
 import { MOCK_FREEE_COMPANY_NAME, mockFreeeTransactions, type FreeeTransaction } from './freeeMock'
-import { mockHandoverNotes } from './handoverNotesMock'
+import { mockHandoverNotes, type HandoverNoteEntry } from './handoverNotesMock'
 
 function mustSupabase() {
   if (!supabase) throw new Error('Supabaseが設定されていません')
@@ -205,17 +205,33 @@ export async function fetchFreeeTransactions(): Promise<FreeeTransaction[]> {
 // 「単一窓口+設定フラグ」の構造にしてあるので、実スプレッドシートが
 // 用意でき次第すぐに切り替えられる。
 // 実装時にやること:
-//   1. クライアント側でスプレッドシートを作成（1行目の見出し: 取引先コード, 申し送り事項）
+//   1. クライアント側でスプレッドシートを作成（1行目の見出し: 取引先コード, 日付, 申し送り事項）
 //   2. 前述のサービスアカウントに閲覧者権限で共有し、スプレッドシートIDを控える
 //   3. HANDOVER_NOTES_SPREADSHEET_ID にそのIDを設定し、isHandoverNotesConfigured を true にする
 //      (sheet-read Edge Functionをそのまま流用できるため、バックエンドの追加実装は不要)
+// 作業のたびに申し送りが発生する前提のため、1取引先につき複数件(日付付き)を返す。
+// 日付が新しい順に並べ替えて返す。
 const isHandoverNotesConfigured = true
 // クライアントが用意した「取引先ごとの申し送り事項」スプレッドシート(2026-08-19共有)
 const HANDOVER_NOTES_SPREADSHEET_ID = '1MEl1gGQsdXcaPrOQVSmB_g6XfIFwt6fy3hYkjPaILqw'
 
-export async function fetchHandoverNotes(): Promise<Record<string, string>> {
+function groupHandoverEntries(
+  rows: { clientCode: string; date: string; note: string }[],
+): Record<string, HandoverNoteEntry[]> {
+  const map: Record<string, HandoverNoteEntry[]> = {}
+  for (const { clientCode, date, note } of rows) {
+    if (!clientCode) continue
+    ;(map[clientCode] ??= []).push({ date, note })
+  }
+  for (const entries of Object.values(map)) {
+    entries.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
+  }
+  return map
+}
+
+export async function fetchHandoverNotes(): Promise<Record<string, HandoverNoteEntry[]>> {
   if (!isHandoverNotesConfigured || !isSupabaseConfigured) {
-    return Object.fromEntries(mockHandoverNotes.map((n) => [n.clientCode, n.note]))
+    return groupHandoverEntries(mockHandoverNotes)
   }
   const url = `${supabaseUrl}/functions/v1/sheet-read?spreadsheetId=${encodeURIComponent(HANDOVER_NOTES_SPREADSHEET_ID)}`
   const res = await fetch(url, {
@@ -228,12 +244,13 @@ export async function fetchHandoverNotes(): Promise<Record<string, string>> {
   if (!res.ok) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error))
 
   const records = data.records as Record<string, string>[]
-  const map: Record<string, string> = {}
-  for (const r of records) {
-    const code = r['取引先コード']
-    if (code) map[code] = r['申し送り事項'] ?? ''
-  }
-  return map
+  return groupHandoverEntries(
+    records.map((r) => ({
+      clientCode: r['取引先コード'],
+      date: r['日付'] ?? '',
+      note: r['申し送り事項'] ?? '',
+    })),
+  )
 }
 
 export async function fetchUsers(): Promise<UserRecord[]> {

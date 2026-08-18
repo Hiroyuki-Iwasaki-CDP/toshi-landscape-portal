@@ -105,7 +105,7 @@ function ClientInfoTab({ client }: { client: Client }) {
   ]
 
   const { data: handoverNotes, loading: notesLoading } = useAsyncData(fetchHandoverNotes, [])
-  const note = handoverNotes?.[client.code]
+  const entries = handoverNotes?.[client.code] ?? []
 
   return (
     <div className="space-y-4">
@@ -123,8 +123,15 @@ function ClientInfoTab({ client }: { client: Client }) {
       <Card title="申し送り事項">
         {notesLoading ? (
           <p className="text-sm text-gray-400">読み込み中…</p>
-        ) : note ? (
-          <p className="whitespace-pre-wrap text-sm text-gray-700">{note}</p>
+        ) : entries.length > 0 ? (
+          <ul className="divide-y divide-brand-50">
+            {entries.map((entry, i) => (
+              <li key={i} className="py-3 first:pt-0 last:pb-0">
+                <p className="text-xs font-semibold text-gray-400">{formatDateJa(entry.date)}</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-gray-700">{entry.note}</p>
+              </li>
+            ))}
+          </ul>
         ) : (
           <p className="text-sm text-gray-400">現在登録されている申し送り事項はありません。</p>
         )}

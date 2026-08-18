@@ -9,7 +9,7 @@ import { FISCAL_YEAR_OPTIONS } from '../../data/sales'
 import { fetchClients, fetchSalesRecords, fetchHandoverNotes } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { DEPARTMENT_LABEL, DEPARTMENTS, type Department } from '../../types'
-import { formatYen, formatNumber } from '../../lib/format'
+import { formatYen, formatNumber, formatDateJa } from '../../lib/format'
 import { useAuth } from '../../context/AuthContext'
 
 type PeriodType = 'yearly' | 'monthly'
@@ -103,7 +103,7 @@ export function PerformanceDashboardPage() {
   }, [filteredRecords])
 
   const selectedClient = useMemo(() => (clients ?? []).find((c) => c.id === clientId) ?? null, [clients, clientId])
-  const selectedClientNote = selectedClient ? handoverNotes?.[selectedClient.code] : undefined
+  const selectedClientNotes = selectedClient ? (handoverNotes?.[selectedClient.code] ?? []) : []
 
   const clientRankingData = useMemo(() => {
     const byClient = new Map<string, number>()
@@ -200,8 +200,15 @@ export function PerformanceDashboardPage() {
 
       {selectedClient && (
         <Card title={`申し送り事項（${selectedClient.name}）`}>
-          {selectedClientNote ? (
-            <p className="whitespace-pre-wrap text-sm text-gray-700">{selectedClientNote}</p>
+          {selectedClientNotes.length > 0 ? (
+            <ul className="divide-y divide-brand-50">
+              {selectedClientNotes.map((entry, i) => (
+                <li key={i} className="py-3 first:pt-0 last:pb-0">
+                  <p className="text-xs font-semibold text-gray-400">{formatDateJa(entry.date)}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-gray-700">{entry.note}</p>
+                </li>
+              ))}
+            </ul>
           ) : (
             <p className="text-sm text-gray-400">現在登録されている申し送り事項はありません。</p>
           )}
