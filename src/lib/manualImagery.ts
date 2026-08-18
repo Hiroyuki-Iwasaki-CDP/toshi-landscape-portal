@@ -6,6 +6,8 @@ import {
   Scissors,
   Sun,
   Sprout,
+  Leaf,
+  Bug,
   SprayCan,
   Truck,
   GraduationCap,
@@ -24,6 +26,9 @@ import {
   ScrollText,
   CalendarClock,
   FileText,
+  Wrench,
+  Package,
+  Award,
 } from 'lucide-react'
 
 export interface ManualImagery {
@@ -36,15 +41,25 @@ interface ImageryRule {
   imagery: ManualImagery
 }
 
+// 色のテーマは意味のあるグルーピングにしている（同系統の作業は同系統の色に寄せる）:
+//   オレンジ系 = 機材・工具・産業機械 / 赤〜オレンジ系 = 安全・危険・熱中症
+//   緑系      = 植物・緑地の手入れ   / 青系        = 調査・診断・報告
+//   紫系      = 提案・企画・資料     / 黄系        = 事務・お金・キャリア
+//   石灰(石)系 = 法令・ガイドライン  / グレー系    = 台帳・搬送・事務書式
 const RULES: ImageryRule[] = [
   { keywords: ['熱中症'], imagery: { Icon: Sun, gradient: 'from-orange-400 to-red-500' } },
+  { keywords: ['刈払機', 'チェーンソー', '取扱説明書', '機材', '機器', '器具', '工具', '点検'], imagery: { Icon: Wrench, gradient: 'from-orange-500 to-amber-700' } },
+  { keywords: ['資材', '発注'], imagery: { Icon: Package, gradient: 'from-amber-400 to-orange-600' } },
   { keywords: ['剪定'], imagery: { Icon: Scissors, gradient: 'from-emerald-400 to-green-600' } },
   { keywords: ['芝生'], imagery: { Icon: Sprout, gradient: 'from-lime-400 to-green-600' } },
   { keywords: ['薬剤', '散布'], imagery: { Icon: SprayCan, gradient: 'from-teal-400 to-emerald-600' } },
+  { keywords: ['病害虫'], imagery: { Icon: Bug, gradient: 'from-green-400 to-lime-600' } },
+  { keywords: ['植栽'], imagery: { Icon: Leaf, gradient: 'from-green-400 to-emerald-600' } },
   { keywords: ['搬入', '搬出', '運搬'], imagery: { Icon: Truck, gradient: 'from-slate-400 to-slate-600' } },
   { keywords: ['新人', '研修', '教育'], imagery: { Icon: GraduationCap, gradient: 'from-indigo-400 to-purple-600' } },
   { keywords: ['危険木', '判定'], imagery: { Icon: AlertTriangle, gradient: 'from-amber-400 to-red-500' } },
-  { keywords: ['樹木', 'リスク評価'], imagery: { Icon: TreePine, gradient: 'from-green-500 to-emerald-700' } },
+  { keywords: ['樹木', '樹種', 'リスク評価', 'リスク傾向'], imagery: { Icon: TreePine, gradient: 'from-green-500 to-emerald-700' } },
+  { keywords: ['診断機器', '測定機材'], imagery: { Icon: Wrench, gradient: 'from-orange-500 to-amber-700' } },
   { keywords: ['現地調査', '調査'], imagery: { Icon: ClipboardList, gradient: 'from-sky-400 to-blue-600' } },
   { keywords: ['法令', 'ガイドライン'], imagery: { Icon: ScrollText, gradient: 'from-stone-400 to-stone-600' } },
   { keywords: ['安全'], imagery: { Icon: ShieldAlert, gradient: 'from-red-400 to-rose-600' } },
@@ -55,6 +70,7 @@ const RULES: ImageryRule[] = [
   { keywords: ['シミュレーション'], imagery: { Icon: CalendarClock, gradient: 'from-purple-400 to-violet-600' } },
   { keywords: ['写真', '台帳'], imagery: { Icon: Camera, gradient: 'from-gray-400 to-gray-600' } },
   { keywords: ['見積', '請求'], imagery: { Icon: Receipt, gradient: 'from-yellow-400 to-amber-600' } },
+  { keywords: ['給与', '昇給', 'キャリアアップ', '資格取得'], imagery: { Icon: Award, gradient: 'from-yellow-400 to-amber-500' } },
   { keywords: ['報告書', '完了報告'], imagery: { Icon: FileCheck, gradient: 'from-blue-400 to-cyan-600' } },
   { keywords: ['日報', 'カルテ', 'チェックシート', 'フォーマット', 'テンプレート'], imagery: { Icon: FileSpreadsheet, gradient: 'from-green-400 to-teal-600' } },
 ]
