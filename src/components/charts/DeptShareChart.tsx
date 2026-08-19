@@ -19,7 +19,7 @@ export function DeptShareChart({ data }: DeptShareChartProps) {
           cy="50%"
           outerRadius={135}
           isAnimationActive={false}
-          fontSize={11}
+          fontSize={15}
           label={(entry) => `${(((entry.percent as number) ?? 0) * 100).toFixed(0)}%`}
         >
           {data.map((entry, index) => (
