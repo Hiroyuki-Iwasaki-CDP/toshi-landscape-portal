@@ -9,15 +9,15 @@ interface DeptShareChartProps {
 
 export function DeptShareChart({ data }: DeptShareChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={420}>
-      <PieChart margin={{ top: 60, right: 32, bottom: 16, left: 32 }}>
+    <ResponsiveContainer width="100%" height={520}>
+      <PieChart margin={{ top: 80, right: 32, bottom: 16, left: 32 }}>
         <Pie
           data={data}
           dataKey="amount"
           nameKey="label"
           cx="50%"
           cy="50%"
-          outerRadius={100}
+          outerRadius={135}
           isAnimationActive={false}
           fontSize={11}
           label={(entry) => `${(((entry.percent as number) ?? 0) * 100).toFixed(0)}%`}
