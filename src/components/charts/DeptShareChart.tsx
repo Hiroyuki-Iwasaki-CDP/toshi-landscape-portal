@@ -9,26 +9,24 @@ interface DeptShareChartProps {
 
 export function DeptShareChart({ data }: DeptShareChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <PieChart>
+    <ResponsiveContainer width="100%" height={320}>
+      <PieChart margin={{ top: 16, right: 32, bottom: 16, left: 32 }}>
         <Pie
           data={data}
           dataKey="amount"
           nameKey="label"
           cx="50%"
-          cy="50%"
-          outerRadius={90}
-          label={(entry) => {
-            const payload = entry.payload as { label: string } | undefined
-            return `${payload?.label ?? ''} ${(((entry.percent as number) ?? 0) * 100).toFixed(0)}%`
-          }}
+          cy="45%"
+          outerRadius={85}
+          isAnimationActive={false}
+          label={(entry) => `${(((entry.percent as number) ?? 0) * 100).toFixed(0)}%`}
         >
           {data.map((entry, index) => (
             <Cell key={entry.label} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
         <Tooltip formatter={(value) => formatYen(Number(value))} />
-        <Legend />
+        <Legend wrapperStyle={{ paddingTop: 20, lineHeight: '1.8em' }} />
       </PieChart>
     </ResponsiveContainer>
   )
