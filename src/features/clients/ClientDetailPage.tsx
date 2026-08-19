@@ -15,6 +15,7 @@ import { formatYen, formatNumber, formatDateJa } from '../../lib/format'
 import { useAuth } from '../../context/AuthContext'
 
 type Tab = 'info' | 'dashboard' | 'history'
+type ChartMode = 'total' | 'breakdown'
 
 const FISCAL_MONTH_ORDER = [4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3]
 
@@ -149,6 +150,7 @@ function ClientDashboardTab({ clientId }: { clientId: string }) {
   const { data: salesRecords, loading } = useAsyncData(fetchSalesRecords, [])
   const [fiscalYear, setFiscalYear] = useState<number>(FISCAL_YEAR_OPTIONS[FISCAL_YEAR_OPTIONS.length - 1])
   const [department, setDepartment] = useState<Department | 'all'>('all')
+  const [chartMode, setChartMode] = useState<ChartMode>('total')
 
   const filtered = useMemo(
     () =>
@@ -189,6 +191,18 @@ function ClientDashboardTab({ clientId }: { clientId: string }) {
       spot: byMonth.get(m)?.spot ?? 0,
     }))
   }, [filtered])
+
+  const contractTypeTotals = useMemo(
+    () =>
+      filtered.reduce(
+        (acc, r) => {
+          acc[r.contractType] += r.amount
+          return acc
+        },
+        { annual: 0, spot: 0 },
+      ),
+    [filtered],
+  )
 
   const deptData = useMemo(() => {
     const byDept = new Map<Department, number>()
@@ -255,7 +269,26 @@ function ClientDashboardTab({ clientId }: { clientId: string }) {
       ) : (
         <>
           <Card title={`${fiscalYear}年度 月別売上推移`}>
-            <MonthlySalesChart data={monthlyData} />
+            <div className="mb-3 flex w-fit rounded-lg border border-brand-200 p-0.5">
+              {(['total', 'breakdown'] as ChartMode[]).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setChartMode(m)}
+                  className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                    chartMode === m ? 'bg-brand-600 text-white' : 'text-gray-500 hover:bg-brand-50'
+                  }`}
+                >
+                  {m === 'total' ? '合計' : '内訳（年間契約・スポット）'}
+                </button>
+              ))}
+            </div>
+            {chartMode === 'breakdown' && (
+              <p className="mb-2 text-xs text-gray-400">
+                年間契約: <span className="font-semibold text-brand-700">{formatYen(contractTypeTotals.annual)}</span>
+                　スポット: <span className="font-semibold text-amber-600">{formatYen(contractTypeTotals.spot)}</span>
+              </p>
+            )}
+            <MonthlySalesChart data={monthlyData} mode={chartMode} />
           </Card>
           <Card title="部門別構成比">
             <DeptShareChart data={deptData} />
