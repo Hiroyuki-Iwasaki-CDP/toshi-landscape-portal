@@ -40,7 +40,7 @@ export function PortalTopPage() {
         <h1 className="text-xl font-bold text-brand-800 sm:text-2xl">{displayName} さん</h1>
       </div>
 
-      <div className="relative overflow-hidden rounded-2xl bg-brand-800 p-5 text-white shadow-sm sm:p-6">
+      <div className="relative overflow-hidden rounded-2xl bg-brand-600 p-5 text-white shadow-sm sm:p-6">
         <Leaf className="pointer-events-none absolute -right-10 -top-12 h-56 w-56 rotate-12 text-white/10" strokeWidth={1} />
         <Leaf className="pointer-events-none absolute -bottom-16 right-16 h-40 w-40 -rotate-12 text-white/5" strokeWidth={1} />
 
