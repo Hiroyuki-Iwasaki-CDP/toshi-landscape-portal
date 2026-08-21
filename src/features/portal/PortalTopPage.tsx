@@ -42,7 +42,7 @@ export function PortalTopPage() {
       </div>
 
       <div className="relative overflow-hidden rounded-2xl bg-brand-600 p-5 text-white shadow-sm sm:p-6">
-        <LeafDecoration className="pointer-events-none absolute -right-6 -top-10 h-64 w-64 text-white" />
+        <LeafDecoration className="pointer-events-none absolute -right-4 -top-8 h-72 w-72 text-white" />
 
         <div className="relative">
           <p className="text-xs font-semibold tracking-wide text-brand-200">社是</p>
@@ -54,13 +54,13 @@ export function PortalTopPage() {
               <Target className="h-3.5 w-3.5" />
               2026年の目標
             </p>
-            <ul className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <ul className="grid grid-cols-1 divide-y divide-white/15 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
               {goals2026.map((goal, i) => {
                 const GoalIcon = GOAL_ICONS[i % GOAL_ICONS.length]
                 return (
-                  <li key={goal.label} className="flex items-start gap-2.5 rounded-xl bg-white/10 px-3 py-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
-                      <GoalIcon className="h-4 w-4" />
+                  <li key={goal.label} className="flex items-center gap-3 px-3 py-2.5 first:pl-0 sm:py-0">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/30">
+                      <GoalIcon className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold">{goal.label}</p>

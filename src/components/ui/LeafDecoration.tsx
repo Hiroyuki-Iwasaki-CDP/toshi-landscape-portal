@@ -1,42 +1,45 @@
-// バナー背景用の装飾イラスト（曲線を多用した、自然で装飾的な葉のクラスター）
-// lucideのアイコン(単色線画)では硬い印象になるため、独自SVGで柔らかい雰囲気を出す
+// バナー背景用の装飾イラスト（小枝に葉が互い違いに並ぶモチーフ）
 interface LeafDecorationProps {
   className?: string
 }
 
-function LeafShape({ transform, opacity }: { transform?: string; opacity: number }) {
+// 単体の葉（中心を軸に上向きの、先が尖った楕円形+中央の葉脈）
+function LeafShape({ transform }: { transform: string }) {
   return (
-    <g transform={transform} opacity={opacity}>
-      <path
-        d="M50 92 C18 78 6 44 14 10 C46 2 78 10 92 34 C100 58 82 84 50 92 Z"
-        fill="white"
-      />
-      <path
-        d="M50 88 C48 66 46 34 40 12"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.35"
-      />
-      <path
-        d="M46 60 C36 55 28 50 22 42 M48 40 C40 33 34 27 30 18"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.3"
-      />
+    <g transform={transform}>
+      <path d="M0 -34 C13 -26 15 8 0 34 C-15 8 -13 -26 0 -34 Z" fill="currentColor" />
+      <path d="M0 -28 L0 28" stroke="white" strokeOpacity="0.25" strokeWidth="1.5" />
     </g>
   )
 }
 
+// 枝上の位置(x,y)・葉の向き(角度)を並べた配置データ(小枝が右上から左下へ伸びるイメージ)
+const LEAVES: { x: number; y: number; angle: number; scale: number }[] = [
+  { x: 250, y: -10, angle: 35, scale: 1 },
+  { x: 224, y: 34, angle: -35, scale: 0.95 },
+  { x: 196, y: 78, angle: 40, scale: 0.9 },
+  { x: 168, y: 120, angle: -40, scale: 0.85 },
+  { x: 140, y: 162, angle: 38, scale: 0.78 },
+  { x: 112, y: 202, angle: -38, scale: 0.7 },
+  { x: 86, y: 238, angle: 35, scale: 0.6 },
+]
+
 export function LeafDecoration({ className }: LeafDecorationProps) {
   return (
-    <svg viewBox="0 0 280 280" className={className} aria-hidden="true">
-      <LeafShape transform="translate(90 10) rotate(18) scale(1.7)" opacity={0.14} />
-      <LeafShape transform="translate(10 90) rotate(-24) scale(1.1)" opacity={0.1} />
-      <LeafShape transform="translate(150 120) rotate(52) scale(0.85)" opacity={0.08} />
+    <svg viewBox="0 0 280 280" className={className} aria-hidden="true" fill="none">
+      {/* 枝(茎) */}
+      <path
+        d="M270 -20 C 230 40, 160 130, 70 250"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        opacity="0.5"
+      />
+      <g opacity="0.5">
+        {LEAVES.map((leaf, i) => (
+          <LeafShape key={i} transform={`translate(${leaf.x} ${leaf.y}) rotate(${leaf.angle}) scale(${leaf.scale})`} />
+        ))}
+      </g>
     </svg>
   )
 }
