@@ -8,15 +8,15 @@ export function Sidebar() {
   const { role, displayName, logout } = useAuth()
 
   return (
-    <aside className="hidden h-screen w-72 shrink-0 flex-col border-r border-brand-100 bg-white md:flex">
+    <aside className="hidden h-screen w-72 shrink-0 flex-col bg-brand-800 md:flex">
       <Link
         to="/"
-        className="flex items-center gap-2 border-b border-brand-100 px-6 py-5 transition-colors hover:bg-brand-50"
+        className="flex items-center gap-2 border-b border-white/10 px-6 py-5 transition-colors hover:bg-white/5"
       >
-        <LayoutDashboard className="h-6 w-6 text-brand-600" />
+        <LayoutDashboard className="h-6 w-6 text-white" />
         <div>
-          <p className="text-sm font-bold leading-tight text-brand-800">トシ・ランドスケープ</p>
-          <p className="text-xs text-gray-400">社内ポータル（モック）</p>
+          <p className="text-sm font-bold leading-tight text-white">トシ・ランドスケープ</p>
+          <p className="text-xs text-brand-300">社内ポータル（モック）</p>
         </div>
       </Link>
 
@@ -27,7 +27,7 @@ export function Sidebar() {
             end
             className={({ isActive }) =>
               `flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
-                isActive ? 'bg-brand-600 text-white' : 'text-brand-700 hover:bg-brand-50'
+                isActive ? 'bg-brand-600 text-white' : 'text-brand-100 hover:bg-white/5'
               }`
             }
           >
@@ -38,7 +38,7 @@ export function Sidebar() {
 
         {navCategories.map((category) => (
           <div key={category.key} className="mb-5">
-            <p className="mb-1.5 px-3 text-xs font-bold tracking-wide text-brand-400">{category.label}</p>
+            <p className="mb-1.5 px-3 text-xs font-bold tracking-wide text-brand-300">{category.label}</p>
             <ul className="space-y-0.5">
               {category.items
                 .filter((item) => !item.adminOnly || role === 'admin')
@@ -50,7 +50,7 @@ export function Sidebar() {
                       `block rounded-lg px-3 py-2 text-sm transition-colors ${
                         isActive
                           ? 'bg-brand-600 font-semibold text-white'
-                          : 'text-gray-600 hover:bg-brand-50 hover:text-brand-700'
+                          : 'text-brand-100/80 hover:bg-white/5 hover:text-white'
                       }`
                     }
                   >
@@ -63,15 +63,15 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-brand-100 px-4 py-4">
-        <p className="px-2 text-xs text-gray-400">ログイン中</p>
+      <div className="border-t border-white/10 px-4 py-4">
+        <p className="px-2 text-xs text-brand-300">ログイン中</p>
         <div className="flex items-center justify-between px-2 py-1">
-          <span className="text-sm font-semibold text-brand-800">
+          <span className="text-sm font-semibold text-white">
             {displayName}（{role ? ROLE_LABEL[role] : ''}）
           </span>
           <button
             onClick={logout}
-            className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-gray-500 hover:bg-brand-50 hover:text-brand-700"
+            className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-brand-200 hover:bg-white/5 hover:text-white"
           >
             <LogOut className="h-3.5 w-3.5" />
             切替

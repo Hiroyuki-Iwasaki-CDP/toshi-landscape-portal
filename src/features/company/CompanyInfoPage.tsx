@@ -21,6 +21,7 @@ import { Badge } from '../../components/ui/Badge'
 import { fetchNews, fetchSchedule } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { formatDateJa } from '../../lib/format'
+import { newsCategoryColor } from '../../lib/newsCategory'
 import { useAuth } from '../../context/AuthContext'
 import type { NewsItem } from '../../types'
 
@@ -226,7 +227,7 @@ export function CompanyNewsPage() {
                   <Bell className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge color="gray">{item.category}</Badge>
+                      <Badge color={newsCategoryColor(item.category)}>{item.category}</Badge>
                       <span className="text-xs text-gray-400">{formatDateJa(item.date)}</span>
                     </div>
                     <p className="mt-1 text-sm font-bold text-gray-700">{item.title}</p>

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 interface BadgeProps {
   children: ReactNode
-  color?: 'brand' | 'gray' | 'amber' | 'red'
+  color?: 'brand' | 'gray' | 'amber' | 'red' | 'blue' | 'purple'
 }
 
 const COLOR_CLASS: Record<NonNullable<BadgeProps['color']>, string> = {
@@ -10,6 +10,8 @@ const COLOR_CLASS: Record<NonNullable<BadgeProps['color']>, string> = {
   gray: 'bg-gray-100 text-gray-600',
   amber: 'bg-amber-100 text-amber-700',
   red: 'bg-red-100 text-red-700',
+  blue: 'bg-blue-100 text-blue-700',
+  purple: 'bg-purple-100 text-purple-700',
 }
 
 export function Badge({ children, color = 'brand' }: BadgeProps) {
