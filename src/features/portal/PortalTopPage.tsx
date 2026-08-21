@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import { Link } from 'react-router-dom'
-import { Building2, Users, Leaf, ShieldAlert, Mountain, ArrowRight, Bell, Target } from 'lucide-react'
+import { Building2, Users, Leaf, ShieldAlert, Mountain, ArrowRight, Bell, Target, ShieldCheck, TrendingUp, Award } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { navCategories } from '../../components/layout/NavConfig'
@@ -18,6 +18,8 @@ const CATEGORY_ICON: Record<string, ComponentType<{ className?: string }>> = {
   'tree-risk': ShieldAlert,
   'landscape-consulting': Mountain,
 }
+
+const GOAL_ICONS = [ShieldCheck, TrendingUp, Award]
 
 const CATEGORY_LINK: Record<string, string> = {
   company: '/company/news',
@@ -53,12 +55,20 @@ export function PortalTopPage() {
               2026年の目標
             </p>
             <ul className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              {goals2026.map((goal) => (
-                <li key={goal.label} className="rounded-xl bg-white/10 px-3 py-2.5">
-                  <p className="text-sm font-bold">{goal.label}</p>
-                  <p className="mt-0.5 text-xs text-brand-100">{goal.detail}</p>
-                </li>
-              ))}
+              {goals2026.map((goal, i) => {
+                const GoalIcon = GOAL_ICONS[i % GOAL_ICONS.length]
+                return (
+                  <li key={goal.label} className="flex items-start gap-2.5 rounded-xl bg-white/10 px-3 py-2.5">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
+                      <GoalIcon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold">{goal.label}</p>
+                      <p className="mt-0.5 text-xs text-brand-100">{goal.detail}</p>
+                    </div>
+                  </li>
+                )
+              })}
             </ul>
           </div>
         </div>

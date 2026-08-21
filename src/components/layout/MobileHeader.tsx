@@ -33,7 +33,7 @@ export function MobileHeader() {
       {open && (
         <div className="fixed inset-0 z-40 flex">
           <div className="absolute inset-0 bg-black/30" onClick={() => setOpen(false)} />
-          <div className="relative flex w-[85%] max-w-sm flex-col overflow-y-auto bg-brand-800 shadow-xl">
+          <div className="relative flex w-[85%] max-w-sm flex-col overflow-y-auto bg-brand-600 shadow-xl">
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-4">
               <div>
                 <p className="text-sm font-bold text-white">{displayName}としてログイン中</p>
@@ -56,7 +56,7 @@ export function MobileHeader() {
                   onClick={() => setOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                      isActive ? 'bg-brand-600 text-white' : 'text-brand-100 hover:bg-white/5'
+                      isActive ? 'bg-brand-800 text-white' : 'text-brand-100 hover:bg-white/5'
                     }`
                   }
                 >
@@ -79,7 +79,7 @@ export function MobileHeader() {
                           className={({ isActive }) =>
                             `block rounded-lg px-3 py-2.5 text-sm ${
                               isActive
-                                ? 'bg-brand-600 font-semibold text-white'
+                                ? 'bg-brand-800 font-semibold text-white'
                                 : 'text-brand-100/80 hover:bg-white/5 hover:text-white'
                             }`
                           }

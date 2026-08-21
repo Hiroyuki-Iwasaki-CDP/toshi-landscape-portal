@@ -8,7 +8,7 @@ export function Sidebar() {
   const { role, displayName, logout } = useAuth()
 
   return (
-    <aside className="hidden h-screen w-72 shrink-0 flex-col bg-brand-800 md:flex">
+    <aside className="hidden h-screen w-72 shrink-0 flex-col bg-brand-600 md:flex">
       <Link
         to="/"
         className="flex items-center gap-2 border-b border-white/10 px-6 py-5 transition-colors hover:bg-white/5"
@@ -27,7 +27,7 @@ export function Sidebar() {
             end
             className={({ isActive }) =>
               `flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
-                isActive ? 'bg-brand-600 text-white' : 'text-brand-100 hover:bg-white/5'
+                isActive ? 'bg-brand-800 text-white' : 'text-brand-100 hover:bg-white/5'
               }`
             }
           >
@@ -49,7 +49,7 @@ export function Sidebar() {
                     className={({ isActive }) =>
                       `block rounded-lg px-3 py-2 text-sm transition-colors ${
                         isActive
-                          ? 'bg-brand-600 font-semibold text-white'
+                          ? 'bg-brand-800 font-semibold text-white'
                           : 'text-brand-100/80 hover:bg-white/5 hover:text-white'
                       }`
                     }
