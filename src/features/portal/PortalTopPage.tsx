@@ -37,24 +37,29 @@ export function PortalTopPage() {
         <h1 className="text-xl font-bold text-brand-800 sm:text-2xl">{displayName} さん</h1>
       </div>
 
-      <div className="rounded-2xl bg-brand-800 p-5 text-white shadow-sm sm:p-6">
-        <p className="text-xs font-semibold tracking-wide text-brand-200">社是</p>
-        <p className="mt-1 text-lg font-bold sm:text-xl">{companyCreed}</p>
-        <p className="mt-2 text-sm text-brand-100">{companyMission}</p>
+      <div className="relative overflow-hidden rounded-2xl bg-brand-800 p-5 text-white shadow-sm sm:p-6">
+        <Leaf className="pointer-events-none absolute -right-10 -top-12 h-56 w-56 rotate-12 text-white/10" strokeWidth={1} />
+        <Leaf className="pointer-events-none absolute -bottom-16 right-16 h-40 w-40 -rotate-12 text-white/5" strokeWidth={1} />
 
-        <div className="mt-5 border-t border-white/10 pt-4">
-          <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-brand-200">
-            <Target className="h-3.5 w-3.5" />
-            2026年の目標
-          </p>
-          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {goals2026.map((goal) => (
-              <li key={goal.label} className="rounded-xl bg-white/10 px-3 py-2.5">
-                <p className="text-sm font-bold">{goal.label}</p>
-                <p className="mt-0.5 text-xs text-brand-100">{goal.detail}</p>
-              </li>
-            ))}
-          </ul>
+        <div className="relative">
+          <p className="text-xs font-semibold tracking-wide text-brand-200">社是</p>
+          <p className="mt-1 text-lg font-bold sm:text-xl">{companyCreed}</p>
+          <p className="mt-2 text-sm text-brand-100">{companyMission}</p>
+
+          <div className="mt-5 border-t border-white/10 pt-4">
+            <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-brand-200">
+              <Target className="h-3.5 w-3.5" />
+              2026年の目標
+            </p>
+            <ul className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {goals2026.map((goal) => (
+                <li key={goal.label} className="rounded-xl bg-white/10 px-3 py-2.5">
+                  <p className="text-sm font-bold">{goal.label}</p>
+                  <p className="mt-0.5 text-xs text-brand-100">{goal.detail}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
 
