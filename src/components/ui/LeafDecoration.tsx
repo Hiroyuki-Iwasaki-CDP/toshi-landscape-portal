@@ -13,23 +13,28 @@ function LeafShape({ transform }: { transform: string }) {
   )
 }
 
-// 枝上の位置(x,y)・葉の向き(角度)を並べた配置データ(小枝が右上から左下へ伸びるイメージ)
+// 枝上の位置(x,y)・葉の向き(角度)・大きさを並べた配置データ
+// 間隔・角度・大きさをあえて不揃いにして、自然な枝分かれ・葉の付き方に見せる
 const LEAVES: { x: number; y: number; angle: number; scale: number }[] = [
-  { x: 250, y: -10, angle: 35, scale: 1 },
-  { x: 224, y: 34, angle: -35, scale: 0.95 },
-  { x: 196, y: 78, angle: 40, scale: 0.9 },
-  { x: 168, y: 120, angle: -40, scale: 0.85 },
-  { x: 140, y: 162, angle: 38, scale: 0.78 },
-  { x: 112, y: 202, angle: -38, scale: 0.7 },
-  { x: 86, y: 238, angle: 35, scale: 0.6 },
+  { x: 258, y: -8, angle: 44, scale: 1.05 },
+  { x: 244, y: 16, angle: -22, scale: 0.62 },
+  { x: 224, y: 34, angle: 50, scale: 0.92 },
+  { x: 206, y: 58, angle: -48, scale: 0.55 },
+  { x: 188, y: 78, angle: 28, scale: 0.85 },
+  { x: 160, y: 104, angle: -38, scale: 0.78 },
+  { x: 150, y: 118, angle: 12, scale: 0.42 },
+  { x: 126, y: 140, angle: 44, scale: 0.72 },
+  { x: 100, y: 168, angle: -32, scale: 0.6 },
+  { x: 82, y: 192, angle: 22, scale: 0.48 },
+  { x: 64, y: 216, angle: -40, scale: 0.4 },
 ]
 
 export function LeafDecoration({ className }: LeafDecorationProps) {
   return (
     <svg viewBox="0 0 280 280" className={className} aria-hidden="true" fill="none">
-      {/* 枝(茎) */}
+      {/* 枝(茎)。ゆるいS字にして真っ直ぐすぎない自然な曲がりにする */}
       <path
-        d="M270 -20 C 230 40, 160 130, 70 250"
+        d="M272 -18 C 248 26, 244 66, 196 92 C 152 114, 128 148, 88 188 C 70 208, 62 228, 52 254"
         stroke="currentColor"
         strokeWidth="3"
         strokeLinecap="round"
