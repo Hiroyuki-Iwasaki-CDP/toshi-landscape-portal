@@ -3,17 +3,17 @@
 @theme {
   --font-sans: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', system-ui, sans-serif;
 
-  /* ブランドカラー：深緑を基調としたグリーン系パレット */
-  --color-brand-50: #eef5f3;
-  --color-brand-100: #d7e9e3;
-  --color-brand-200: #b0d3c7;
-  --color-brand-300: #82b8a7;
-  --color-brand-400: #549c86;
-  --color-brand-500: #397e6a;
-  --color-brand-600: #2e6b5e;
-  --color-brand-700: #26564c;
-  --color-brand-800: #1f453e;
-  --color-brand-900: #193733;
+  /* ブランドカラー：クライアント指定の#426669を基調としたパレット(2026-08-21改訂) */
+  --color-brand-50: #f6f7f8;
+  --color-brand-100: #e3e8e9;
+  --color-brand-200: #bdc9cb;
+  --color-brand-300: #97abad;
+  --color-brand-400: #718c8f;
+  --color-brand-500: #557578;
+  --color-brand-600: #426669;
+  --color-brand-700: #385759;
+  --color-brand-800: #2e474a;
+  --color-brand-900: #24383a;
 }
 
 html,

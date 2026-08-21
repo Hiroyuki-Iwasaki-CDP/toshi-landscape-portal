@@ -25,10 +25,10 @@ export function MonthlySalesChart({ data, mode }: MonthlySalesChartProps) {
         <Tooltip formatter={(value) => formatYen(Number(value))} labelStyle={{ fontSize: 12 }} />
         <Legend wrapperStyle={{ fontSize: 12 }} />
         {mode === 'total' ? (
-          <Line type="monotone" dataKey="total" name="売上合計" stroke="#2e6b5e" strokeWidth={2.5} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey="total" name="売上合計" stroke="#426669" strokeWidth={2.5} dot={{ r: 3 }} />
         ) : (
           <>
-            <Line type="monotone" dataKey="annual" name="年間契約" stroke="#2e6b5e" strokeWidth={2.5} dot={{ r: 3 }} />
+            <Line type="monotone" dataKey="annual" name="年間契約" stroke="#426669" strokeWidth={2.5} dot={{ r: 3 }} />
             <Line type="monotone" dataKey="spot" name="スポット" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 3 }} />
           </>
         )}

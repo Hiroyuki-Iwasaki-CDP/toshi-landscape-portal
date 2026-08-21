@@ -19,7 +19,7 @@ export function ClientRankingChart({ data }: ClientRankingChartProps) {
         />
         <YAxis type="category" dataKey="label" tick={{ fontSize: 12 }} stroke="#9ca3af" width={160} />
         <Tooltip formatter={(value) => formatYen(Number(value))} />
-        <Bar dataKey="amount" name="売上" fill="#397e6a" radius={[0, 6, 6, 0]} />
+        <Bar dataKey="amount" name="売上" fill="#557578" radius={[0, 6, 6, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )

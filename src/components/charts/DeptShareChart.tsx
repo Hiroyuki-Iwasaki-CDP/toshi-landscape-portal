@@ -1,7 +1,7 @@
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from 'recharts'
 import { formatYen } from '../../lib/format'
 
-const COLORS = ['#2e6b5e', '#82b8a7', '#c9a227']
+const COLORS = ['#426669', '#97abad', '#c9a227']
 
 interface DeptShareChartProps {
   data: { label: string; amount: number }[]
