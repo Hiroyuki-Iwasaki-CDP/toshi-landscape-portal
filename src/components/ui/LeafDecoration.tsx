@@ -1,4 +1,5 @@
 // バナー背景用の装飾イラスト（小枝に葉が互い違いに並ぶモチーフ）
+// 「蔦」に見えないよう、茎はしなやかに曲げず直線に近い硬さにしている
 interface LeafDecorationProps {
   className?: string
 }
@@ -13,36 +14,33 @@ function LeafShape({ transform }: { transform: string }) {
   )
 }
 
-// 枝上の位置(x,y)・葉の向き(角度)・大きさを並べた配置データ
-// 間隔・角度・大きさをあえて不揃いにして、自然な枝分かれ・葉の付き方に見せる
-const LEAVES: { x: number; y: number; angle: number; scale: number }[] = [
-  { x: 258, y: -8, angle: 44, scale: 1.05 },
-  { x: 244, y: 16, angle: -22, scale: 0.62 },
-  { x: 224, y: 34, angle: 50, scale: 0.92 },
-  { x: 206, y: 58, angle: -48, scale: 0.55 },
-  { x: 188, y: 78, angle: 28, scale: 0.85 },
-  { x: 160, y: 104, angle: -38, scale: 0.78 },
-  { x: 150, y: 118, angle: 12, scale: 0.42 },
-  { x: 126, y: 140, angle: 44, scale: 0.72 },
-  { x: 100, y: 168, angle: -32, scale: 0.6 },
-  { x: 82, y: 192, angle: 22, scale: 0.48 },
-  { x: 64, y: 216, angle: -40, scale: 0.4 },
+// 葉の付け根(枝上の点 sx,sy)・葉の位置(x,y)・向き(角度)・大きさ
+// 付け根から短い葉柄(stalk)を伸ばして葉を付けることで「枝から生えている」感を出す
+const LEAVES: { sx: number; sy: number; x: number; y: number; angle: number; scale: number }[] = [
+  { sx: 258, sy: 4, x: 288, y: -18, angle: 48, scale: 1.05 },
+  { sx: 240, sy: 30, x: 260, y: 10, angle: -30, scale: 0.55 },
+  { sx: 214, sy: 58, x: 246, y: 40, angle: 46, scale: 0.9 },
+  { sx: 196, sy: 84, x: 222, y: 108, angle: -42, scale: 0.5 },
+  { sx: 170, sy: 112, x: 202, y: 100, angle: 26, scale: 0.8 },
+  { sx: 146, sy: 140, x: 116, y: 122, angle: -34, scale: 0.72 },
+  { sx: 130, sy: 158, x: 156, y: 172, angle: 14, scale: 0.4 },
+  { sx: 108, sy: 184, x: 76, y: 168, angle: 40, scale: 0.65 },
+  { sx: 86, sy: 210, x: 116, y: 226, angle: -28, scale: 0.55 },
+  { sx: 68, sy: 232, x: 40, y: 216, angle: 20, scale: 0.45 },
 ]
 
 export function LeafDecoration({ className }: LeafDecorationProps) {
   return (
     <svg viewBox="0 0 280 280" className={className} aria-hidden="true" fill="none">
-      {/* 枝(茎)。ゆるいS字にして真っ直ぐすぎない自然な曲がりにする */}
-      <path
-        d="M272 -18 C 248 26, 244 66, 196 92 C 152 114, 128 148, 88 188 C 70 208, 62 228, 52 254"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        opacity="0.5"
-      />
+      {/* 枝(茎)。蔦のようにしならせず、硬い木の枝らしく直線的にする */}
+      <path d="M274 -16 L60 254" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.5" />
+
       <g opacity="0.5">
         {LEAVES.map((leaf, i) => (
-          <LeafShape key={i} transform={`translate(${leaf.x} ${leaf.y}) rotate(${leaf.angle}) scale(${leaf.scale})`} />
+          <g key={i}>
+            <line x1={leaf.sx} y1={leaf.sy} x2={leaf.x} y2={leaf.y} stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <LeafShape transform={`translate(${leaf.x} ${leaf.y}) rotate(${leaf.angle}) scale(${leaf.scale})`} />
+          </g>
         ))}
       </g>
     </svg>
