@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import { Link } from 'react-router-dom'
-import { Building2, Users, Leaf, ShieldAlert, Mountain, ArrowRight, Bell, Target, ShieldCheck, TrendingUp, Award } from 'lucide-react'
+import { Building2, Users, Leaf, LeafyGreen, ShieldAlert, Mountain, ArrowRight, Bell, Target, ShieldCheck, TrendingUp, Award } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { navCategories } from '../../components/layout/NavConfig'
@@ -41,8 +41,8 @@ export function PortalTopPage() {
       </div>
 
       <div className="relative overflow-hidden rounded-2xl bg-brand-600 p-5 text-white shadow-sm sm:p-6">
-        <Leaf className="pointer-events-none absolute -right-10 -top-12 h-56 w-56 rotate-12 text-white/10" strokeWidth={1} />
-        <Leaf className="pointer-events-none absolute -bottom-16 right-16 h-40 w-40 -rotate-12 text-white/5" strokeWidth={1} />
+        <LeafyGreen className="pointer-events-none absolute -right-10 -top-12 h-56 w-56 rotate-12 text-white/10" strokeWidth={1} />
+        <LeafyGreen className="pointer-events-none absolute -bottom-16 right-16 h-40 w-40 -rotate-12 text-white/5" strokeWidth={1} />
 
         <div className="relative">
           <p className="text-xs font-semibold tracking-wide text-brand-200">社是</p>
