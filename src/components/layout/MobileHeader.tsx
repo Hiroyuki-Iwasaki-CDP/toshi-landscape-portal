@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Menu, X, LogOut, Home } from 'lucide-react'
 import { navCategories } from './NavConfig'
+import { GlobalSearch } from './GlobalSearch'
 import { useAuth } from '../../context/AuthContext'
 import { ROLE_LABEL } from '../../types'
 import toshiLogoDark from '../../assets/toshi-logo-dark.png'
@@ -22,13 +23,16 @@ export function MobileHeader() {
         <Link to="/">
           <img src={toshiLogoDark} alt="トシ・ランドスケープ" className="h-9 w-auto" />
         </Link>
-        <button
-          aria-label="メニューを開く"
-          onClick={() => setOpen(true)}
-          className="rounded-lg p-2 text-brand-700 hover:bg-brand-50"
-        >
-          <Menu className="h-6 w-6" />
-        </button>
+        <div className="flex items-center gap-1">
+          <GlobalSearch variant="mobile" />
+          <button
+            aria-label="メニューを開く"
+            onClick={() => setOpen(true)}
+            className="rounded-lg p-2 text-brand-700 hover:bg-brand-50"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+        </div>
       </header>
 
       {open && (

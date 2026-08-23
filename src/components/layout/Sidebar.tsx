@@ -1,6 +1,7 @@
 import { Link, NavLink } from 'react-router-dom'
 import { LogOut, Home } from 'lucide-react'
 import { navCategories } from './NavConfig'
+import { GlobalSearch } from './GlobalSearch'
 import { useAuth } from '../../context/AuthContext'
 import { ROLE_LABEL } from '../../types'
 import toshiLogoWhite from '../../assets/toshi-logo-white.png'
@@ -19,7 +20,7 @@ export function Sidebar() {
       </Link>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
-        <div className="mb-5">
+        <div className="mb-5 space-y-0.5">
           <NavLink
             to="/"
             end
@@ -32,6 +33,7 @@ export function Sidebar() {
             <Home className="h-4 w-4" />
             ホーム
           </NavLink>
+          <GlobalSearch variant="sidebar" />
         </div>
 
         {navCategories.map((category) => (
