@@ -1,7 +1,6 @@
-// バナー背景用の装飾イラスト（小枝に葉が密集して茂るモチーフ）
-// 参考写真(実物の小枝)に合わせ、葉を密に重ねて茂みらしく見せている。
-// 葉の向きは「葉柄(付け根から葉までの線)の方向」から自動計算し、
-// 葉と葉柄が同じ方向を向くようにして接続を自然に見せている。
+// バナー背景用の装飾イラスト（小枝に葉が付く、シンプルなモチーフ）
+// 実物の小枝の参考写真に合わせ、枝の先端側（右上）に葉を大きく密集させ、
+// 根元側（左下）に向かって葉を小さく・まばらにしている。
 import type { CSSProperties } from 'react'
 
 interface LeafDecorationProps {
@@ -9,18 +8,17 @@ interface LeafDecorationProps {
   style?: CSSProperties
 }
 
-// 単体の葉（付け根(0,0)から上方向へ伸びる、先端が尖った細長い形+中央の葉脈+側脈）
-function LeafShape({ transform }: { transform: string }) {
+// 単体の葉（付け根(0,0)から先端(0,-length)へ伸びる、丸みのある一枚葉+中央の葉脈）
+function LeafShape({ transform, length }: { transform: string; length: number }) {
+  const width = length * 0.42
+  const waist = -length * 0.4
   return (
     <g transform={transform}>
+      <path d={`M0 0 Q ${-width} ${waist} 0 ${-length} Q ${width} ${waist} 0 0 Z`} fill="currentColor" />
       <path
-        d="M0 0 C13 -10 16 -38 9 -60 C6 -72 3 -80 0 -88 C-3 -80 -6 -72 -9 -60 C-16 -38 -13 -10 0 0 Z"
-        fill="currentColor"
-      />
-      <path
-        d="M0 -6 L0 -82 M0 -22 L-7 -34 M0 -22 L7 -34 M0 -44 L-8 -56 M0 -44 L8 -56"
+        d={`M0 ${-length * 0.08} L0 ${-length * 0.92}`}
         stroke="white"
-        strokeOpacity="0.22"
+        strokeOpacity="0.25"
         strokeWidth="1.2"
         strokeLinecap="round"
       />
@@ -28,26 +26,18 @@ function LeafShape({ transform }: { transform: string }) {
   )
 }
 
-// 葉の付け根(枝上の点 sx,sy)・葉柄の先端(x,y)・大きさ
-// 葉の向きはsx,sy→x,yの方向から自動計算するため、角度は持たせない
-// 密集した葉のかたまりを枝の先端側(右上)に多めに、根元(左下)ほど少なく配置する
-const LEAVES: { sx: number; sy: number; x: number; y: number; scale: number }[] = [
-  { sx: 250, sy: 8, x: 276, y: -22, scale: 0.85 },
-  { sx: 250, sy: 8, x: 292, y: 6, scale: 0.95 },
-  { sx: 240, sy: 20, x: 264, y: 44, scale: 0.7 },
-  { sx: 226, sy: 36, x: 210, y: 10, scale: 0.9 },
-  { sx: 226, sy: 36, x: 250, y: 54, scale: 0.6 },
-  { sx: 210, sy: 54, x: 176, y: 34, scale: 0.75 },
-  { sx: 210, sy: 54, x: 222, y: 82, scale: 0.85 },
-  { sx: 196, sy: 70, x: 192, y: 100, scale: 0.65 },
-  { sx: 196, sy: 70, x: 160, y: 60, scale: 0.55 },
-  { sx: 178, sy: 90, x: 150, y: 118, scale: 0.72 },
-  { sx: 178, sy: 90, x: 202, y: 122, scale: 0.5 },
-  { sx: 158, sy: 112, x: 128, y: 96, scale: 0.6 },
-  { sx: 158, sy: 112, x: 140, y: 148, scale: 0.4 },
-  { sx: 130, sy: 142, x: 100, y: 158, scale: 0.42 },
-  { sx: 100, sy: 174, x: 72, y: 190, scale: 0.34 },
-  { sx: 74, sy: 202, x: 48, y: 216, scale: 0.28 },
+// 葉の付け根(枝上の点 sx,sy)・先端(x,y)・長さ
+// 枝の先端側(右上)に大きな葉を、根元側(左下)に小さな葉を配置する
+const LEAVES: { sx: number; sy: number; x: number; y: number; length: number }[] = [
+  { sx: 186, sy: 14, x: 166, y: -18, length: 62 },
+  { sx: 186, sy: 14, x: 202, y: 24, length: 56 },
+  { sx: 164, sy: 42, x: 132, y: 22, length: 60 },
+  { sx: 164, sy: 42, x: 182, y: 64, length: 50 },
+  { sx: 138, sy: 72, x: 106, y: 58, length: 52 },
+  { sx: 138, sy: 72, x: 156, y: 100, length: 42 },
+  { sx: 108, sy: 106, x: 82, y: 92, length: 40 },
+  { sx: 108, sy: 106, x: 128, y: 132, length: 30 },
+  { sx: 78, sy: 132, x: 52, y: 146, length: 28 },
 ]
 
 // 葉柄の方向(sx,sy→x,y)から、葉が同じ方向を向くための回転角を求める
@@ -59,11 +49,11 @@ function stalkAngleDeg(sx: number, sy: number, x: number, y: number): number {
 
 export function LeafDecoration({ className, style }: LeafDecorationProps) {
   return (
-    <svg viewBox="0 0 280 280" className={className} style={style} aria-hidden="true" fill="none">
+    <svg viewBox="0 0 210 210" className={className} style={style} aria-hidden="true" fill="none">
       {/* 枝(茎)。木質の硬い直線にする(蔦のようにしならせない) */}
-      <path d="M262 -4 L58 210" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.45" />
+      <path d="M198 -2 L36 156" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.5" />
 
-      <g opacity="0.45">
+      <g opacity="0.5">
         {LEAVES.map((leaf, i) => {
           const angle = stalkAngleDeg(leaf.sx, leaf.sy, leaf.x, leaf.y)
           return (
@@ -77,7 +67,7 @@ export function LeafDecoration({ className, style }: LeafDecorationProps) {
                 strokeWidth="1.5"
                 strokeLinecap="round"
               />
-              <LeafShape transform={`translate(${leaf.x} ${leaf.y}) rotate(${angle}) scale(${leaf.scale})`} />
+              <LeafShape transform={`translate(${leaf.x} ${leaf.y}) rotate(${angle})`} length={leaf.length} />
             </g>
           )
         })}

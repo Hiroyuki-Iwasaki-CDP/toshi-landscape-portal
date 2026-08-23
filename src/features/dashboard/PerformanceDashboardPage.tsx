@@ -126,10 +126,7 @@ export function PerformanceDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="relative overflow-hidden rounded-2xl bg-brand-600 p-5 text-white shadow-sm sm:p-6">
-        <LeafDecoration
-          className="pointer-events-none absolute -right-4 -top-16 h-56 w-56 text-white opacity-90"
-          style={{ transform: 'scaleY(-1)' }}
-        />
+        <LeafDecoration className="pointer-events-none absolute -right-3 -top-3 h-36 w-36 text-white" />
 
         <div className="relative flex items-center gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/30">
