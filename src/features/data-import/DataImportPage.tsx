@@ -3,6 +3,7 @@ import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertTriangle, XCircle, X, 
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
+import { PageHeaderBanner } from '../../components/ui/PageHeaderBanner'
 import { fetchClients, fetchClientAliases, connectToFreee, fetchFreeeTransactions } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { parseCsv } from '../../lib/csv'
@@ -354,12 +355,12 @@ export function DataImportPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-lg font-bold text-brand-800 sm:text-xl">データ取込</h1>
-        <p className="text-sm text-gray-400">
-          税理士事務所から提供されるCSVファイル、または将来的にはfreee会計から実績データ（取引先×年月×金額）を取り込みます。取引先名は登録済みの別名辞書と自動照合し、未紐付けの場合はこの画面で手動で紐付けます。
-        </p>
-      </div>
+      <PageHeaderBanner
+        icon={UploadCloud}
+        eyebrow="COMPANY"
+        title="データ取込"
+        description="税理士事務所から提供されるCSVファイル、または将来的にはfreee会計から実績データ（取引先×年月×金額）を取り込みます。取引先名は登録済みの別名辞書と自動照合し、未紐付けの場合はこの画面で手動で紐付けます。"
+      />
 
       <div className="flex gap-1 rounded-lg border border-brand-100 bg-white p-1">
         {(

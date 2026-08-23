@@ -1,4 +1,6 @@
+import { TableProperties } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
+import { PageHeaderBanner } from '../../components/ui/PageHeaderBanner'
 import { fetchAppSheetTestData } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 
@@ -7,12 +9,12 @@ export function AppSheetTestPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-lg font-bold text-brand-800 sm:text-xl">AppSheet連携テスト</h1>
-        <p className="text-sm text-gray-400">
-          Googleスプレッドシート（AppSheetの元データ想定）を実際に読み込めるかの検証用ページです（管理者限定・ダミーデータのシートを参照）
-        </p>
-      </div>
+      <PageHeaderBanner
+        icon={TableProperties}
+        eyebrow="COMPANY"
+        title="AppSheet連携テスト"
+        description="Googleスプレッドシート（AppSheetの元データ想定）を実際に読み込めるかの検証用ページです（管理者限定・ダミーデータのシートを参照）"
+      />
 
       <Card>
         {loading ? (

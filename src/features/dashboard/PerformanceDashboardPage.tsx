@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Coins, Users2, Trash2, LayoutDashboard } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
-import leafBranch from '../../assets/leaf-branch.png'
+import { PageHeaderBanner } from '../../components/ui/PageHeaderBanner'
 import { MonthlySalesChart } from '../../components/charts/MonthlySalesChart'
 import { DeptShareChart } from '../../components/charts/DeptShareChart'
 import { ClientRankingChart } from '../../components/charts/ClientRankingChart'
@@ -125,27 +125,12 @@ export function PerformanceDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-2xl bg-brand-600 p-5 text-white shadow-sm sm:p-6">
-        <img
-          src={leafBranch}
-          alt=""
-          className="pointer-events-none absolute right-0 bottom-0 opacity-70 mix-blend-screen"
-          style={{ height: '110px', width: 'auto' }}
-        />
-
-        <div className="relative flex items-center gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/30">
-            <LayoutDashboard className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold tracking-wide text-brand-200">PERFORMANCE</p>
-            <h1 className="mt-0.5 text-lg font-bold sm:text-xl">実績ダッシュボード</h1>
-            <p className="mt-1 text-sm text-brand-100">
-              売上・人工・ごみ量の実績を、月別・年度別・物件（取引先）別・部門別に確認できます
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeaderBanner
+        icon={LayoutDashboard}
+        eyebrow="PERFORMANCE"
+        title="実績ダッシュボード"
+        description="売上・人工・ごみ量の実績を、月別・年度別・物件（取引先）別・部門別に確認できます"
+      />
 
       <Card>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

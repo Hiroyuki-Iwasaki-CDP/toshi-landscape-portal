@@ -1,8 +1,24 @@
 import { useEffect, useMemo, useState } from 'react'
-import { File as FileIcon, Search, UploadCloud, FolderSync, Pencil, Check, X, Tag } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import {
+  File as FileIcon,
+  Search,
+  UploadCloud,
+  FolderSync,
+  Pencil,
+  Check,
+  X,
+  Tag,
+  Building2,
+  Users,
+  Leaf,
+  ShieldAlert,
+  Mountain,
+} from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { CategoryTabs } from '../../components/ui/CategoryTabs'
+import { PageHeaderBanner } from '../../components/ui/PageHeaderBanner'
 import { useAuth } from '../../context/AuthContext'
 import { type DriveFileItem, type DriveFileType } from '../../data/driveFiles'
 import { driveFolderIds } from '../../data/driveFolderIds'
@@ -142,6 +158,14 @@ const FILE_TYPE_LABEL: Record<DriveFileType, string> = {
   pdf: 'PDF',
 }
 
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  COMPANY: Building2,
+  CUSTOMER: Users,
+  'GREEN MAINTENANCE': Leaf,
+  'TREE RISK ASSESSMENT': ShieldAlert,
+  'LANDSCAPE CONSULTING': Mountain,
+}
+
 interface DriveFolderPageProps {
   path: string
   title: string
@@ -196,22 +220,25 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
 
   return (
     <div className="space-y-4">
-      <div>
-        <p className="text-xs font-semibold tracking-wide text-brand-400">{categoryLabel}</p>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h1 className="text-lg font-bold text-brand-800 sm:text-xl">{title}</h1>
-          {canEdit && (
+      <PageHeaderBanner
+        icon={CATEGORY_ICON[categoryLabel] ?? FileIcon}
+        eyebrow={categoryLabel}
+        title={title}
+        description={
+          <span className="flex items-center gap-1">
+            <FolderSync className="h-3.5 w-3.5" />
+            {isConnected ? 'Googleドライブと連携済み（実データ）' : 'Googleドライブと連携（モック表示・実データではありません）'}
+          </span>
+        }
+        actions={
+          canEdit && (
             <Button variant="secondary" className="text-xs">
               <UploadCloud className="h-4 w-4" />
               ファイルを追加
             </Button>
-          )}
-        </div>
-        <p className="mt-1 flex items-center gap-1 text-xs text-gray-400">
-          <FolderSync className="h-3.5 w-3.5" />
-          {isConnected ? 'Googleドライブと連携済み（実データ）' : 'Googleドライブと連携（モック表示・実データではありません）'}
-        </p>
-      </div>
+          )
+        }
+      />
 
       {availableTypes.length > 1 && (
         <CategoryTabs

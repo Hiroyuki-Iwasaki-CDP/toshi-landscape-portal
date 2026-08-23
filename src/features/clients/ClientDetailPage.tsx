@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ChevronLeft, Coins, Users2, Trash2, FolderOpen } from 'lucide-react'
+import { ChevronLeft, Coins, Users2, Trash2, FolderOpen, Building2 } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
 import { Badge } from '../../components/ui/Badge'
+import { PageHeaderBanner } from '../../components/ui/PageHeaderBanner'
 import { MonthlySalesChart } from '../../components/charts/MonthlySalesChart'
 import { DeptShareChart } from '../../components/charts/DeptShareChart'
 import { fetchClients, fetchSalesRecords, fetchHandoverNotes } from '../../data/repo'
@@ -59,16 +60,13 @@ export function ClientDetailPage() {
         取引先一覧に戻る
       </Link>
 
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-mono text-gray-500">{client.code}</span>
-            <h1 className="text-lg font-bold text-brand-800 sm:text-xl">{client.name}</h1>
-          </div>
-          <p className="text-sm text-gray-400">{client.industry}</p>
-        </div>
-        <DriveFolderLink code={client.code} />
-      </div>
+      <PageHeaderBanner
+        icon={Building2}
+        eyebrow={client.code}
+        title={client.name}
+        description={client.industry}
+        actions={<DriveFolderLink code={client.code} />}
+      />
 
       <div className="flex gap-1 rounded-lg border border-brand-100 bg-white p-1">
         {(
@@ -102,7 +100,7 @@ function DriveFolderLink({ code }: { code: string }) {
 
   if (!folderId) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-gray-200 px-3 py-1.5 text-xs text-gray-400">
+      <span className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-white/30 px-3 py-1.5 text-xs text-brand-100">
         <FolderOpen className="h-3.5 w-3.5" />
         Driveフォルダ未連携
       </span>
@@ -114,7 +112,7 @@ function DriveFolderLink({ code }: { code: string }) {
       href={`https://drive.google.com/drive/folders/${folderId}`}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 px-3 py-1.5 text-xs font-semibold text-brand-700 hover:bg-brand-50"
+      className="inline-flex items-center gap-1.5 rounded-lg bg-brand-100 px-3 py-1.5 text-xs font-semibold text-brand-700 hover:bg-white"
     >
       <FolderOpen className="h-3.5 w-3.5" />
       Driveフォルダを開く

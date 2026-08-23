@@ -19,6 +19,7 @@ import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 import { CategoryTabs } from '../../components/ui/CategoryTabs'
+import { PageHeaderBanner } from '../../components/ui/PageHeaderBanner'
 import { fetchNews, fetchSchedule } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { formatDateJa } from '../../lib/format'
@@ -178,22 +179,27 @@ export function CompanyNewsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-lg font-bold text-brand-800 sm:text-xl">お知らせ</h1>
-        {canWrite && !creating && (
-          <Button
-            variant="secondary"
-            className="text-xs"
-            onClick={() => {
-              setCreating(true)
-              setEditingId(null)
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            新規投稿
-          </Button>
-        )}
-      </div>
+      <PageHeaderBanner
+        icon={Bell}
+        eyebrow="COMPANY"
+        title="お知らせ"
+        actions={
+          canWrite &&
+          !creating && (
+            <Button
+              variant="secondary"
+              className="text-xs"
+              onClick={() => {
+                setCreating(true)
+                setEditingId(null)
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              新規投稿
+            </Button>
+          )
+        }
+      />
 
       {canWrite && (
         <p className="text-xs text-gray-400">
@@ -321,18 +327,22 @@ export function CompanySchedulePage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-lg font-bold text-brand-800 sm:text-xl">スケジュール</h1>
-        <a
-          href="https://calendar.google.com/"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 px-3 py-1.5 text-xs font-semibold text-brand-700 hover:bg-brand-50"
-        >
-          <ExternalLink className="h-3.5 w-3.5" />
-          Googleカレンダーで開く
-        </a>
-      </div>
+      <PageHeaderBanner
+        icon={CalendarDays}
+        eyebrow="COMPANY"
+        title="スケジュール"
+        actions={
+          <a
+            href="https://calendar.google.com/"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-100 px-3 py-1.5 text-xs font-semibold text-brand-700 hover:bg-white"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Googleカレンダーで開く
+          </a>
+        }
+      />
 
       <div className="flex items-center gap-2 rounded-xl bg-brand-50 px-4 py-3 text-xs text-brand-700">
         <RefreshCw className="h-3.5 w-3.5 shrink-0" />

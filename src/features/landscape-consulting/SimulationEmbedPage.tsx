@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { LinkIcon, MonitorPlay } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { PageHeaderBanner } from '../../components/ui/PageHeaderBanner'
 import { useAuth } from '../../context/AuthContext'
 
 export function SimulationEmbedPage() {
@@ -16,12 +17,12 @@ export function SimulationEmbedPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-lg font-bold text-brand-800 sm:text-xl">長期シミュレーションAP</h1>
-        <p className="text-sm text-gray-400">
-          Claudeで作成済みの長期シミュレーションアプリを、リンクまたは埋め込み表示でポータルに統合します
-        </p>
-      </div>
+      <PageHeaderBanner
+        icon={MonitorPlay}
+        eyebrow="LANDSCAPE CONSULTING"
+        title="長期シミュレーションAP"
+        description="Claudeで作成済みの長期シミュレーションアプリを、リンクまたは埋め込み表示でポータルに統合します"
+      />
 
       {canEdit && (
         <Card title="埋め込み設定">

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { ShieldAlert } from 'lucide-react'
+import { ShieldAlert, Users } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
+import { PageHeaderBanner } from '../../components/ui/PageHeaderBanner'
 import { useAuth } from '../../context/AuthContext'
 import { fetchUsers } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
@@ -39,12 +40,12 @@ export function UserManagementPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-lg font-bold text-brand-800 sm:text-xl">ユーザー管理</h1>
-        <p className="text-sm text-gray-400">
-          メールアドレスに紐づく権限を管理します（変更はこの画面の表示のみに反映されます。書き込みは未対応です）
-        </p>
-      </div>
+      <PageHeaderBanner
+        icon={Users}
+        eyebrow="COMPANY"
+        title="ユーザー管理"
+        description="メールアドレスに紐づく権限を管理します（変更はこの画面の表示のみに反映されます。書き込みは未対応です）"
+      />
 
       <Card>
         {loading ? (

@@ -4,6 +4,7 @@ import { Building2, ChevronRight, Search } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { CategoryTabs } from '../../components/ui/CategoryTabs'
+import { PageHeaderBanner } from '../../components/ui/PageHeaderBanner'
 import { fetchClients } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { CLIENT_STATUS_LABEL, DEPARTMENT_LABEL, DEPARTMENTS, type Department } from '../../types'
@@ -29,10 +30,12 @@ export function ClientListPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-lg font-bold text-brand-800 sm:text-xl">取引先一覧</h1>
-        <p className="text-sm text-gray-400">全{clients?.length ?? 0}件</p>
-      </div>
+      <PageHeaderBanner
+        icon={Building2}
+        eyebrow="CUSTOMER"
+        title="取引先一覧"
+        description={`全${clients?.length ?? 0}件`}
+      />
 
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
