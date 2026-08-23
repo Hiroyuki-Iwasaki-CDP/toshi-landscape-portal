@@ -51,7 +51,7 @@ export function LeafDecoration({ className, style }: LeafDecorationProps) {
   return (
     <svg viewBox="0 0 210 210" className={className} style={style} aria-hidden="true" fill="none">
       {/* 枝(茎)。木質の硬い直線にする(蔦のようにしならせない) */}
-      <path d="M198 -2 L36 156" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.5" />
+      <path d="M198 -2 L26 240" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.5" />
 
       <g opacity="0.5">
         {LEAVES.map((leaf, i) => {
