@@ -1,8 +1,9 @@
 import { Link, NavLink } from 'react-router-dom'
-import { LogOut, LayoutDashboard, Home } from 'lucide-react'
+import { LogOut, Home } from 'lucide-react'
 import { navCategories } from './NavConfig'
 import { useAuth } from '../../context/AuthContext'
 import { ROLE_LABEL } from '../../types'
+import toshiLogoWhite from '../../assets/toshi-logo-white.png'
 
 export function Sidebar() {
   const { role, displayName, logout } = useAuth()
@@ -11,13 +12,10 @@ export function Sidebar() {
     <aside className="hidden h-screen w-72 shrink-0 flex-col bg-brand-600 md:flex">
       <Link
         to="/"
-        className="flex items-center gap-2 border-b border-white/10 px-6 py-5 transition-colors hover:bg-white/5"
+        className="flex flex-col items-start gap-1 border-b border-white/10 px-6 py-5 transition-colors hover:bg-white/5"
       >
-        <LayoutDashboard className="h-6 w-6 text-white" />
-        <div>
-          <p className="text-sm font-bold leading-tight text-white">トシ・ランドスケープ</p>
-          <p className="text-xs text-brand-300">社内ポータル（モック）</p>
-        </div>
+        <img src={toshiLogoWhite} alt="トシ・ランドスケープ" className="h-14 w-auto" />
+        <p className="text-xs text-brand-300">社内ポータル（モック）</p>
       </Link>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">

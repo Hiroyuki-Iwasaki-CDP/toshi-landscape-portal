@@ -4,6 +4,7 @@ import { Menu, X, LogOut, Home } from 'lucide-react'
 import { navCategories } from './NavConfig'
 import { useAuth } from '../../context/AuthContext'
 import { ROLE_LABEL } from '../../types'
+import toshiLogoDark from '../../assets/toshi-logo-dark.png'
 
 export function MobileHeader() {
   const [open, setOpen] = useState(false)
@@ -18,8 +19,8 @@ export function MobileHeader() {
   return (
     <div className="md:hidden">
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-brand-100 bg-white px-4 py-3">
-        <Link to="/" className="text-sm font-bold text-brand-800">
-          トシ・ランドスケープ
+        <Link to="/">
+          <img src={toshiLogoDark} alt="トシ・ランドスケープ" className="h-9 w-auto" />
         </Link>
         <button
           aria-label="メニューを開く"
