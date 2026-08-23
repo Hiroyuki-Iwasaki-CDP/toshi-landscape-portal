@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Coins, Users2, Trash2, LayoutDashboard } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
+import { LeafDecoration } from '../../components/ui/LeafDecoration'
 import { MonthlySalesChart } from '../../components/charts/MonthlySalesChart'
 import { DeptShareChart } from '../../components/charts/DeptShareChart'
 import { ClientRankingChart } from '../../components/charts/ClientRankingChart'
@@ -124,15 +125,23 @@ export function PerformanceDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-          <LayoutDashboard className="h-6 w-6" />
-        </div>
-        <div>
-          <h1 className="text-lg font-bold text-brand-800 sm:text-xl">実績ダッシュボード</h1>
-          <p className="text-sm text-gray-400">
-            売上・人工・ごみ量の実績を、月別・年度別・物件（取引先）別・部門別に確認できます
-          </p>
+      <div className="relative overflow-hidden rounded-2xl bg-brand-600 p-5 text-white shadow-sm sm:p-6">
+        <LeafDecoration
+          className="pointer-events-none absolute -right-4 -top-16 h-56 w-56 text-white opacity-90"
+          style={{ transform: 'scaleY(-1)' }}
+        />
+
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/30">
+            <LayoutDashboard className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold tracking-wide text-brand-200">PERFORMANCE</p>
+            <h1 className="mt-0.5 text-lg font-bold sm:text-xl">実績ダッシュボード</h1>
+            <p className="mt-1 text-sm text-brand-100">
+              売上・人工・ごみ量の実績を、月別・年度別・物件（取引先）別・部門別に確認できます
+            </p>
+          </div>
         </div>
       </div>
 

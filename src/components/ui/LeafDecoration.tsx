@@ -2,8 +2,11 @@
 // 参考写真(実物の小枝)に合わせ、葉を密に重ねて茂みらしく見せている。
 // 葉の向きは「葉柄(付け根から葉までの線)の方向」から自動計算し、
 // 葉と葉柄が同じ方向を向くようにして接続を自然に見せている。
+import type { CSSProperties } from 'react'
+
 interface LeafDecorationProps {
   className?: string
+  style?: CSSProperties
 }
 
 // 単体の葉（付け根(0,0)から上方向へ伸びる、先端が尖った細長い形+中央の葉脈+側脈）
@@ -54,9 +57,9 @@ function stalkAngleDeg(sx: number, sy: number, x: number, y: number): number {
   return (Math.atan2(dx, -dy) * 180) / Math.PI
 }
 
-export function LeafDecoration({ className }: LeafDecorationProps) {
+export function LeafDecoration({ className, style }: LeafDecorationProps) {
   return (
-    <svg viewBox="0 0 280 280" className={className} aria-hidden="true" fill="none">
+    <svg viewBox="0 0 280 280" className={className} style={style} aria-hidden="true" fill="none">
       {/* 枝(茎)。木質の硬い直線にする(蔦のようにしならせない) */}
       <path d="M262 -4 L58 210" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.45" />
 
