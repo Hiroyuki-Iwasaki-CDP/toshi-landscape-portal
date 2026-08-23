@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Building2, ChevronRight } from 'lucide-react'
+import { Building2, ChevronRight, Search } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { CategoryTabs } from '../../components/ui/CategoryTabs'
@@ -11,17 +11,38 @@ import { CLIENT_STATUS_LABEL, DEPARTMENT_LABEL, DEPARTMENTS, type Department } f
 export function ClientListPage() {
   const { data: clients, loading, error } = useAsyncData(fetchClients, [])
   const [department, setDepartment] = useState<Department | 'すべて'>('すべて')
+  const [query, setQuery] = useState('')
 
   const filtered = useMemo(() => {
-    if (department === 'すべて') return clients ?? []
-    return (clients ?? []).filter((c) => c.department === department)
-  }, [clients, department])
+    const q = query.trim().toLowerCase()
+    return (clients ?? []).filter((c) => {
+      if (department !== 'すべて' && c.department !== department) return false
+      if (!q) return true
+      return (
+        c.name.toLowerCase().includes(q) ||
+        c.code.toLowerCase().includes(q) ||
+        c.industry.toLowerCase().includes(q) ||
+        c.contactPerson.toLowerCase().includes(q)
+      )
+    })
+  }, [clients, department, query])
 
   return (
     <div className="space-y-4">
       <div>
         <h1 className="text-lg font-bold text-brand-800 sm:text-xl">取引先一覧</h1>
         <p className="text-sm text-gray-400">全{clients?.length ?? 0}件</p>
+      </div>
+
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="取引先名・コード・業種・担当者で検索"
+          className="w-full rounded-xl border border-brand-200 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+        />
       </div>
 
       <CategoryTabs
