@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ChevronLeft, Coins, Users2, Trash2 } from 'lucide-react'
+import { ChevronLeft, Coins, Users2, Trash2, FolderOpen } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
 import { Badge } from '../../components/ui/Badge'
@@ -10,6 +10,7 @@ import { fetchClients, fetchSalesRecords, fetchHandoverNotes } from '../../data/
 import { useAsyncData } from '../../lib/useAsyncData'
 import { FISCAL_YEAR_OPTIONS } from '../../data/sales'
 import { completionReports } from '../../data/reports'
+import { clientDriveFolderIds } from '../../data/clientDriveFolderIds'
 import { CLIENT_STATUS_LABEL, DEPARTMENT_LABEL, DEPARTMENTS, type Client, type Department } from '../../types'
 import { formatYen, formatNumber, formatDateJa } from '../../lib/format'
 import { useAuth } from '../../context/AuthContext'
@@ -58,12 +59,15 @@ export function ClientDetailPage() {
         取引先一覧に戻る
       </Link>
 
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-mono text-gray-500">{client.code}</span>
-          <h1 className="text-lg font-bold text-brand-800 sm:text-xl">{client.name}</h1>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-mono text-gray-500">{client.code}</span>
+            <h1 className="text-lg font-bold text-brand-800 sm:text-xl">{client.name}</h1>
+          </div>
+          <p className="text-sm text-gray-400">{client.industry}</p>
         </div>
-        <p className="text-sm text-gray-400">{client.industry}</p>
+        <DriveFolderLink code={client.code} />
       </div>
 
       <div className="flex gap-1 rounded-lg border border-brand-100 bg-white p-1">
@@ -90,6 +94,31 @@ export function ClientDetailPage() {
       {tab === 'dashboard' && <ClientDashboardTab clientId={client.id} />}
       {tab === 'history' && <ClientHistoryTab clientId={client.id} />}
     </div>
+  )
+}
+
+function DriveFolderLink({ code }: { code: string }) {
+  const folderId = clientDriveFolderIds[code]
+
+  if (!folderId) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-gray-200 px-3 py-1.5 text-xs text-gray-400">
+        <FolderOpen className="h-3.5 w-3.5" />
+        Driveフォルダ未連携
+      </span>
+    )
+  }
+
+  return (
+    <a
+      href={`https://drive.google.com/drive/folders/${folderId}`}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 px-3 py-1.5 text-xs font-semibold text-brand-700 hover:bg-brand-50"
+    >
+      <FolderOpen className="h-3.5 w-3.5" />
+      Driveフォルダを開く
+    </a>
   )
 }
 
