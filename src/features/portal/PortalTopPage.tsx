@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Building2, Users, Leaf, ShieldAlert, Mountain, ArrowRight, Bell, Target, ShieldCheck, TrendingUp, Award } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
-import { LeafDecoration } from '../../components/ui/LeafDecoration'
+import leafBranch from '../../assets/leaf-branch.png'
 import { navCategories } from '../../components/layout/NavConfig'
 import { fetchNews } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
@@ -42,7 +42,12 @@ export function PortalTopPage() {
       </div>
 
       <div className="relative overflow-hidden rounded-2xl bg-brand-600 p-5 text-white shadow-sm sm:p-6">
-        <LeafDecoration className="pointer-events-none absolute -right-4 -top-8 h-72 w-72 text-white" />
+        <img
+          src={leafBranch}
+          alt=""
+          className="pointer-events-none absolute right-0 bottom-0 opacity-70 mix-blend-screen"
+          style={{ height: '220px', width: 'auto' }}
+        />
 
         <div className="relative">
           <p className="text-xs font-semibold tracking-wide text-brand-200">社是</p>

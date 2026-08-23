@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Coins, Users2, Trash2, LayoutDashboard } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
-import { LeafDecoration } from '../../components/ui/LeafDecoration'
+import leafBranch from '../../assets/leaf-branch.png'
 import { MonthlySalesChart } from '../../components/charts/MonthlySalesChart'
 import { DeptShareChart } from '../../components/charts/DeptShareChart'
 import { ClientRankingChart } from '../../components/charts/ClientRankingChart'
@@ -126,7 +126,12 @@ export function PerformanceDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="relative overflow-hidden rounded-2xl bg-brand-600 p-5 text-white shadow-sm sm:p-6">
-        <LeafDecoration className="pointer-events-none absolute -right-1 -bottom-1 h-32 w-32 text-white" />
+        <img
+          src={leafBranch}
+          alt=""
+          className="pointer-events-none absolute right-0 bottom-0 opacity-70 mix-blend-screen"
+          style={{ height: '110px', width: 'auto' }}
+        />
 
         <div className="relative flex items-center gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/30">
