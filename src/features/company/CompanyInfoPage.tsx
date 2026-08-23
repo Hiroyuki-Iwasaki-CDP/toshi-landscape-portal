@@ -18,6 +18,7 @@ import {
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
+import { CategoryTabs } from '../../components/ui/CategoryTabs'
 import { fetchNews, fetchSchedule } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { formatDateJa } from '../../lib/format'
@@ -123,6 +124,7 @@ export function CompanyNewsPage() {
   const { data: fetchedNews, loading, error } = useAsyncData(fetchNews, [])
   const [localNews, setLocalNews] = useState<NewsItem[]>([])
   const [query, setQuery] = useState('')
+  const [category, setCategory] = useState('すべて')
   const [page, setPage] = useState(1)
   const [creating, setCreating] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -153,11 +155,12 @@ export function CompanyNewsPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return localNews
-    return localNews.filter(
-      (item) => item.title.toLowerCase().includes(q) || item.body.toLowerCase().includes(q),
-    )
-  }, [localNews, query])
+    return localNews.filter((item) => {
+      if (category !== 'すべて' && item.category !== category) return false
+      if (!q) return true
+      return item.title.toLowerCase().includes(q) || item.body.toLowerCase().includes(q)
+    })
+  }, [localNews, query, category])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
@@ -165,6 +168,11 @@ export function CompanyNewsPage() {
 
   function handleQueryChange(value: string) {
     setQuery(value)
+    setPage(1)
+  }
+
+  function handleCategoryChange(value: string) {
+    setCategory(value)
     setPage(1)
   }
 
@@ -196,6 +204,12 @@ export function CompanyNewsPage() {
       {creating && (
         <NewsForm onCancel={() => setCreating(false)} onSave={handleCreate} />
       )}
+
+      <CategoryTabs
+        options={[{ value: 'すべて', label: 'すべて' }, ...NEWS_CATEGORIES.map((c) => ({ value: c, label: c }))]}
+        value={category}
+        onChange={handleCategoryChange}
+      />
 
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />

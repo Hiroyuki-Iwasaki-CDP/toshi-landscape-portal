@@ -1,13 +1,21 @@
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Building2, ChevronRight } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
+import { CategoryTabs } from '../../components/ui/CategoryTabs'
 import { fetchClients } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
-import { CLIENT_STATUS_LABEL, DEPARTMENT_LABEL } from '../../types'
+import { CLIENT_STATUS_LABEL, DEPARTMENT_LABEL, DEPARTMENTS, type Department } from '../../types'
 
 export function ClientListPage() {
   const { data: clients, loading, error } = useAsyncData(fetchClients, [])
+  const [department, setDepartment] = useState<Department | 'すべて'>('すべて')
+
+  const filtered = useMemo(() => {
+    if (department === 'すべて') return clients ?? []
+    return (clients ?? []).filter((c) => c.department === department)
+  }, [clients, department])
 
   return (
     <div className="space-y-4">
@@ -16,14 +24,25 @@ export function ClientListPage() {
         <p className="text-sm text-gray-400">全{clients?.length ?? 0}件</p>
       </div>
 
+      <CategoryTabs
+        options={[
+          { value: 'すべて' as const, label: 'すべて' },
+          ...DEPARTMENTS.map((d) => ({ value: d, label: DEPARTMENT_LABEL[d] })),
+        ]}
+        value={department}
+        onChange={setDepartment}
+      />
+
       <Card className="p-0 sm:p-0">
         {loading ? (
           <p className="py-8 text-center text-sm text-gray-400">読み込み中…</p>
         ) : error ? (
           <p className="py-8 text-center text-sm text-red-500">データの取得に失敗しました: {error}</p>
+        ) : filtered.length === 0 ? (
+          <p className="py-8 text-center text-sm text-gray-400">該当する取引先が見つかりませんでした</p>
         ) : (
           <ul className="divide-y divide-brand-50">
-            {(clients ?? []).map((client) => (
+            {filtered.map((client) => (
               <li key={client.id}>
                 <Link
                   to={`/clients/${client.id}`}

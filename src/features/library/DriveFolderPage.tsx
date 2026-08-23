@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { File as FileIcon, Search, UploadCloud, FolderSync, Pencil, Check, X, Tag } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { CategoryTabs } from '../../components/ui/CategoryTabs'
 import { useAuth } from '../../context/AuthContext'
-import { type DriveFileItem } from '../../data/driveFiles'
+import { type DriveFileItem, type DriveFileType } from '../../data/driveFiles'
 import { driveFolderIds } from '../../data/driveFolderIds'
 import { fetchDriveFiles } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
@@ -134,6 +135,13 @@ function FileCard({ file, canEdit, onUpdate, onTagClick }: FileCardProps) {
   )
 }
 
+const FILE_TYPE_LABEL: Record<DriveFileType, string> = {
+  doc: 'ドキュメント',
+  sheet: 'スプレッドシート',
+  slide: 'スライド',
+  pdf: 'PDF',
+}
+
 interface DriveFolderPageProps {
   path: string
   title: string
@@ -144,6 +152,7 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
   const { role } = useAuth()
   const canEdit = role === 'admin' || role === 'editor'
   const [query, setQuery] = useState('')
+  const [fileType, setFileType] = useState<DriveFileType | 'すべて'>('すべて')
   const isConnected = Boolean(driveFolderIds[path])
 
   const { data: fetchedFiles, loading, error } = useAsyncData(() => fetchDriveFiles(path), [path])
@@ -157,17 +166,24 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
     setLocalFiles((prev) => prev.map((f) => (f.id === id ? { ...f, ...patch } : f)))
   }
 
+  const availableTypes = useMemo(() => {
+    const seen = new Set<DriveFileType>()
+    for (const f of localFiles) seen.add(f.type)
+    return [...seen]
+  }, [localFiles])
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase().replace(/^#/, '')
-    if (!q) return localFiles
     return localFiles.filter((f) => {
+      if (fileType !== 'すべて' && f.type !== fileType) return false
+      if (!q) return true
       if (f.name.toLowerCase().includes(q)) return true
       if (f.detail?.toLowerCase().includes(q)) return true
       if (f.excerpt?.toLowerCase().includes(q)) return true
       if (f.tags?.some((t) => t.toLowerCase().includes(q))) return true
       return false
     })
-  }, [localFiles, query])
+  }, [localFiles, query, fileType])
 
   const legendItems = useMemo(() => {
     const seen = new Map<string, { gradient: string; label: string }>()
@@ -196,6 +212,17 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
           {isConnected ? 'Googleドライブと連携済み（実データ）' : 'Googleドライブと連携（モック表示・実データではありません）'}
         </p>
       </div>
+
+      {availableTypes.length > 1 && (
+        <CategoryTabs
+          options={[
+            { value: 'すべて' as const, label: 'すべて' },
+            ...availableTypes.map((t) => ({ value: t, label: FILE_TYPE_LABEL[t] })),
+          ]}
+          value={fileType}
+          onChange={setFileType}
+        />
+      )}
 
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
