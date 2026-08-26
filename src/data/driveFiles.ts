@@ -174,8 +174,6 @@ export const driveFiles: Record<string, DriveFileItem[]> = {
   '/green-maintenance/proposal': [
     { id: 'gm-p01', name: '緑地維持管理 提案書テンプレート', type: 'slide', updatedAt: '2026-05-30', updatedBy: '山本 恵美' },
     { id: 'gm-p02', name: '植栽リニューアル提案事例集', type: 'slide', updatedAt: '2026-04-18', updatedBy: '山本 恵美' },
-  ],
-  '/green-maintenance/knowledge': [
     { id: 'gm-k01', name: '季節ごとの植栽管理ポイント', type: 'doc', updatedAt: '2026-05-25', updatedBy: '中村 悠斗' },
     { id: 'gm-k02', name: 'よくある病害虫と対処法', type: 'doc', updatedAt: '2026-04-12', updatedBy: '中村 悠斗' },
   ],
@@ -189,16 +187,12 @@ export const driveFiles: Record<string, DriveFileItem[]> = {
   ],
   '/tree-risk/proposal': [
     { id: 'tr-p01', name: '樹木リスク評価 提案書テンプレート', type: 'slide', updatedAt: '2026-05-12', updatedBy: '小林 亮' },
-  ],
-  '/tree-risk/knowledge': [
     { id: 'tr-k01', name: '危険木判定の実例集', type: 'doc', updatedAt: '2026-04-28', updatedBy: '編集 花子' },
     { id: 'tr-k02', name: '樹種別リスク傾向まとめ', type: 'doc', updatedAt: '2026-03-22', updatedBy: '小林 亮' },
   ],
   '/landscape-consulting/proposal': [
     { id: 'lc-p01', name: '景観コンサル提案書テンプレート', type: 'slide', updatedAt: '2026-05-18', updatedBy: '加藤 沙織' },
     { id: 'lc-p02', name: '公共施設向け提案事例集', type: 'slide', updatedAt: '2026-04-02', updatedBy: '山本 恵美' },
-  ],
-  '/landscape-consulting/knowledge': [
     { id: 'lc-k01', name: '景観計画の考え方まとめ', type: 'doc', updatedAt: '2026-04-15', updatedBy: '加藤 沙織' },
   ],
   '/company/career': [
@@ -206,6 +200,8 @@ export const driveFiles: Record<string, DriveFileItem[]> = {
     { id: 'co-c02', name: '資格取得支援制度 詳細', type: 'doc', updatedAt: '2026-05-10', updatedBy: '管理者 太郎' },
     { id: 'co-c03', name: 'キャリアアップ図', type: 'slide', updatedAt: '2026-03-20', updatedBy: '管理者 太郎' },
   ],
-  // 各種申請: Googleフォーム作成中のため、現時点ではファイルなし（打ち合わせで空表示でOKと確認済み）
+  // 申請: Googleフォーム作成中のため、現時点ではファイルなし（打ち合わせで空表示でOKと確認済み）
   '/company/applications': [],
+  // 理念・社内ルール: 新設ページ、コンテンツ未整備
+  '/company/rules': [],
 }

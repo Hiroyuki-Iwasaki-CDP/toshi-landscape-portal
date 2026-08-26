@@ -1,10 +1,11 @@
 // お知らせのカテゴリごとのバッジ色
-const CATEGORY_COLOR: Record<string, 'amber' | 'blue' | 'purple' | 'gray'> = {
-  お知らせ: 'amber',
-  システム: 'blue',
+const CATEGORY_COLOR: Record<string, 'amber' | 'blue' | 'purple' | 'red' | 'gray'> = {
+  全体: 'amber',
   人事: 'purple',
+  安全: 'red',
+  システム: 'blue',
 }
 
-export function newsCategoryColor(category: string): 'amber' | 'blue' | 'purple' | 'gray' {
+export function newsCategoryColor(category: string): 'amber' | 'blue' | 'purple' | 'red' | 'gray' {
   return CATEGORY_COLOR[category] ?? 'gray'
 }

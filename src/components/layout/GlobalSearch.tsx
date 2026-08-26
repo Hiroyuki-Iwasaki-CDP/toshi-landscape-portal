@@ -14,7 +14,7 @@ interface SearchResult {
   title: string
   subtitle: string
   path: string
-  badge?: { label: string; color: 'amber' | 'blue' | 'purple' | 'gray' }
+  badge?: { label: string; color: 'amber' | 'blue' | 'purple' | 'red' | 'gray' }
 }
 
 interface GlobalSearchProps {

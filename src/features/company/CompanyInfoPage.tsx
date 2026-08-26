@@ -28,7 +28,7 @@ import { useAuth } from '../../context/AuthContext'
 import type { NewsItem } from '../../types'
 
 const PAGE_SIZE = 10
-const NEWS_CATEGORIES = ['お知らせ', 'システム', '人事']
+const NEWS_CATEGORIES = ['全体', '人事', '安全', 'システム']
 
 function todayStr(): string {
   return new Date().toISOString().slice(0, 10)

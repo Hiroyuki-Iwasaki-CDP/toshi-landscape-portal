@@ -160,7 +160,7 @@ const FILE_TYPE_LABEL: Record<DriveFileType, string> = {
 
 const CATEGORY_ICON: Record<string, LucideIcon> = {
   COMPANY: Building2,
-  CUSTOMER: Users,
+  PARTNER: Users,
   'GREEN MAINTENANCE': Leaf,
   'TREE RISK ASSESSMENT': ShieldAlert,
   'LANDSCAPE CONSULTING': Mountain,
