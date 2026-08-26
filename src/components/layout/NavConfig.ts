@@ -61,7 +61,12 @@ export const navCategories: NavCategory[] = [
     description: '取引先一覧・関係先一覧',
     items: [
       { label: '取引先一覧', path: '/clients' },
-      { label: '関係先一覧', path: '/partner/related', placeholder: true },
+      {
+        label: '関係先一覧',
+        path: '/partner/related',
+        placeholder: true,
+        categories: ['処分・リサイクル', '資材・仕入', '応援・協力', 'その他'],
+      },
     ],
   },
   {
