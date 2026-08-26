@@ -46,8 +46,8 @@ export interface Client {
   address: string
   contractStartDate: string // YYYY-MM-DD
   phone: string
-  /** 主管部門（実績データ取込時、CSVに部門列がなくてもこの値で部門を補完する） */
-  department: Department
+  /** 主管部門（複数選択可。実績データ取込時、CSVに部門列がなければ先頭の部門で補完する） */
+  departments: Department[]
   status: ClientStatus
 }
 

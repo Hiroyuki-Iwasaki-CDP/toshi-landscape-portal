@@ -1,7 +1,7 @@
 import type { Client } from '../types'
 
 // 取引先マスタ（ダミーデータ・10件）
-// department: 主管部門（取引先コード・名寄せ設計メモに基づき、CSV取込時に部門列がなくてもここから補完する）
+// departments: 主管部門（複数選択可）。取引先コード・名寄せ設計メモに基づき、CSV取込時に部門列がなければ先頭の部門で補完する
 export const clients: Client[] = [
   {
     id: 'c01',
@@ -12,7 +12,7 @@ export const clients: Client[] = [
     address: '東京都世田谷区緑ヶ丘1-2-3',
     contractStartDate: '2018-04-01',
     phone: '03-1111-2222',
-    department: 'GREEN_MAINTENANCE',
+    departments: ['GREEN_MAINTENANCE'],
     status: 'active',
   },
   {
@@ -24,7 +24,7 @@ export const clients: Client[] = [
     address: '東京都杉並区高井戸2-4-6',
     contractStartDate: '2019-07-15',
     phone: '03-2222-3333',
-    department: 'GREEN_MAINTENANCE',
+    departments: ['GREEN_MAINTENANCE'],
     status: 'active',
   },
   {
@@ -36,7 +36,7 @@ export const clients: Client[] = [
     address: '千葉県市川市八幡1-1-1',
     contractStartDate: '2015-04-01',
     phone: '047-333-4444',
-    department: 'TREE_RISK_ASSESSMENT',
+    departments: ['TREE_RISK_ASSESSMENT'],
     status: 'active',
   },
   {
@@ -48,7 +48,7 @@ export const clients: Client[] = [
     address: '東京都練馬区若葉台3-5-7',
     contractStartDate: '2020-10-01',
     phone: '03-4444-5555',
-    department: 'GREEN_MAINTENANCE',
+    departments: ['GREEN_MAINTENANCE'],
     status: 'active',
   },
   {
@@ -60,7 +60,7 @@ export const clients: Client[] = [
     address: '神奈川県横浜市港北区新横浜4-8-2',
     contractStartDate: '2021-03-01',
     phone: '045-555-6666',
-    department: 'LANDSCAPE_CONSULTING',
+    departments: ['LANDSCAPE_CONSULTING', 'GREEN_MAINTENANCE'],
     status: 'active',
   },
   {
@@ -72,7 +72,7 @@ export const clients: Client[] = [
     address: '東京都板橋区常盤台2-9-1',
     contractStartDate: '2017-04-01',
     phone: '03-6666-7777',
-    department: 'TREE_RISK_ASSESSMENT',
+    departments: ['TREE_RISK_ASSESSMENT'],
     status: 'active',
   },
   {
@@ -84,7 +84,7 @@ export const clients: Client[] = [
     address: '東京都港区南青山3-11-5',
     contractStartDate: '2022-06-01',
     phone: '03-7777-8888',
-    department: 'LANDSCAPE_CONSULTING',
+    departments: ['LANDSCAPE_CONSULTING'],
     status: 'active',
   },
   {
@@ -96,7 +96,7 @@ export const clients: Client[] = [
     address: '埼玉県さいたま市浦和区常盤6-2-3',
     contractStartDate: '2016-09-01',
     phone: '048-888-9999',
-    department: 'GREEN_MAINTENANCE',
+    departments: ['GREEN_MAINTENANCE'],
     status: 'paused',
   },
   {
@@ -108,7 +108,7 @@ export const clients: Client[] = [
     address: '静岡県熱海市渚町1-4',
     contractStartDate: '2019-01-15',
     phone: '0557-9-0000',
-    department: 'TREE_RISK_ASSESSMENT',
+    departments: ['TREE_RISK_ASSESSMENT', 'LANDSCAPE_CONSULTING'],
     status: 'active',
   },
   {
@@ -120,7 +120,7 @@ export const clients: Client[] = [
     address: '千葉県船橋市葛飾町2-1-1',
     contractStartDate: '2023-04-01',
     phone: '047-0-1111',
-    department: 'LANDSCAPE_CONSULTING',
+    departments: ['LANDSCAPE_CONSULTING'],
     status: 'ended',
   },
 ]

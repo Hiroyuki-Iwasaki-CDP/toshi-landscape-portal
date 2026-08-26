@@ -20,7 +20,12 @@ import { DriveFolderPage } from './features/library/DriveFolderPage'
 const driveRoutes = navCategories.flatMap((category) =>
   category.items
     .filter((item) => item.editable)
-    .map((item) => ({ path: item.path, label: item.label, categoryLabel: category.label })),
+    .map((item) => ({
+      path: item.path,
+      label: item.label,
+      categoryLabel: category.label,
+      categories: item.categories,
+    })),
 )
 
 // 準備中プレースホルダーで表示するページ一覧（作り込み済みのパスは除く）
@@ -76,7 +81,14 @@ function App() {
               <Route
                 key={route.path}
                 path={route.path}
-                element={<DriveFolderPage path={route.path} title={route.label} categoryLabel={route.categoryLabel} />}
+                element={
+                  <DriveFolderPage
+                    path={route.path}
+                    title={route.label}
+                    categoryLabel={route.categoryLabel}
+                    topicCategories={route.categories}
+                  />
+                }
               />
             ))}
 

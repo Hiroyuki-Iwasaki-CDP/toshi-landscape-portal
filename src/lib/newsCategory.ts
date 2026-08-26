@@ -1,6 +1,6 @@
 // お知らせのカテゴリごとのバッジ色
 const CATEGORY_COLOR: Record<string, 'amber' | 'blue' | 'purple' | 'red' | 'gray'> = {
-  全体: 'amber',
+  お知らせ: 'amber',
   人事: 'purple',
   安全: 'red',
   システム: 'blue',

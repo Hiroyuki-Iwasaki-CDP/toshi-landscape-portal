@@ -87,7 +87,7 @@ function resolveRow(
 ): ParsedRow {
   const clientId = aliasMap.get(normalizeName(base.rawClientName)) ?? null
   const client = clientId ? (clientsById.get(clientId) ?? null) : null
-  const resolvedDepartment = client ? (matchDepartment(base.rawDepartment) ?? client.department) : null
+  const resolvedDepartment = client ? (matchDepartment(base.rawDepartment) ?? client.departments[0] ?? null) : null
   return { ...base, resolvedClientId: client ? clientId : null, resolvedDepartment }
 }
 
@@ -325,7 +325,7 @@ export function DataImportPage() {
       (prev ?? []).map((r) => {
         if (r.errors.length > 0) return r
         if (normalizeName(r.rawClientName) !== normalizeName(row.rawClientName)) return r
-        const department = matchDepartment(r.rawDepartment) ?? client.department
+        const department = matchDepartment(r.rawDepartment) ?? client.departments[0] ?? null
         return { ...r, resolvedClientId: client.id, resolvedDepartment: department }
       }),
     )
@@ -343,7 +343,7 @@ export function DataImportPage() {
       address: '未設定',
       contractStartDate: new Date().toISOString().slice(0, 10),
       phone: '未設定',
-      department: 'GREEN_MAINTENANCE',
+      departments: ['GREEN_MAINTENANCE'],
       status: 'active',
     }
     setSessionClients((prev) => [...prev, newClient])

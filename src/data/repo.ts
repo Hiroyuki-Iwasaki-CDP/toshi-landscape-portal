@@ -57,7 +57,8 @@ export async function fetchClients(): Promise<Client[]> {
     address: row.address,
     contractStartDate: row.contract_start_date,
     phone: row.phone,
-    department: row.department as Department,
+    // departments列が未整備のDBでは、旧department列（単一）から補完する
+    departments: (Array.isArray(row.departments) ? row.departments : row.department ? [row.department] : []) as Department[],
     status: row.status as ClientStatus,
   }))
 }

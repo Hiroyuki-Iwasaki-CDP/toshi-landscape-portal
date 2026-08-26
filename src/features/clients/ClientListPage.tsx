@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Building2, ChevronRight, Search } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
-import { CategoryTabs } from '../../components/ui/CategoryTabs'
+import { MultiCategoryTabs } from '../../components/ui/MultiCategoryTabs'
 import { PageHeaderBanner } from '../../components/ui/PageHeaderBanner'
 import { fetchClients } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
@@ -11,13 +11,13 @@ import { CLIENT_STATUS_LABEL, DEPARTMENT_LABEL, DEPARTMENTS, type Department } f
 
 export function ClientListPage() {
   const { data: clients, loading, error } = useAsyncData(fetchClients, [])
-  const [department, setDepartment] = useState<Department | 'すべて'>('すべて')
+  const [departments, setDepartments] = useState<Department[]>([])
   const [query, setQuery] = useState('')
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     return (clients ?? []).filter((c) => {
-      if (department !== 'すべて' && c.department !== department) return false
+      if (departments.length > 0 && !c.departments.some((d) => departments.includes(d))) return false
       if (!q) return true
       return (
         c.name.toLowerCase().includes(q) ||
@@ -26,13 +26,13 @@ export function ClientListPage() {
         c.contactPerson.toLowerCase().includes(q)
       )
     })
-  }, [clients, department, query])
+  }, [clients, departments, query])
 
   return (
     <div className="space-y-4">
       <PageHeaderBanner
         icon={Building2}
-        eyebrow="CUSTOMER"
+        eyebrow="PARTNER"
         title="取引先一覧"
         description={`全${clients?.length ?? 0}件`}
       />
@@ -48,13 +48,10 @@ export function ClientListPage() {
         />
       </div>
 
-      <CategoryTabs
-        options={[
-          { value: 'すべて' as const, label: 'すべて' },
-          ...DEPARTMENTS.map((d) => ({ value: d, label: DEPARTMENT_LABEL[d] })),
-        ]}
-        value={department}
-        onChange={setDepartment}
+      <MultiCategoryTabs
+        options={DEPARTMENTS.map((d) => ({ value: d, label: DEPARTMENT_LABEL[d] }))}
+        values={departments}
+        onChange={setDepartments}
       />
 
       <Card className="p-0 sm:p-0">
@@ -84,7 +81,8 @@ export function ClientListPage() {
                       {client.status !== 'active' && <Badge color="amber">{CLIENT_STATUS_LABEL[client.status]}</Badge>}
                     </div>
                     <p className="mt-0.5 truncate text-xs text-gray-400">
-                      {client.industry} ・ 担当: {client.contactPerson} ・ 主管: {DEPARTMENT_LABEL[client.department]}
+                      {client.industry} ・ 担当: {client.contactPerson} ・ 主管:{' '}
+                      {client.departments.map((d) => DEPARTMENT_LABEL[d]).join(' / ')}
                     </p>
                   </div>
                   <ChevronRight className="h-5 w-5 shrink-0 text-gray-300" />

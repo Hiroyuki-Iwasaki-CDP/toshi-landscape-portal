@@ -124,7 +124,7 @@ function ClientInfoTab({ client }: { client: Client }) {
   const rows: [string, string][] = [
     ['取引先コード', client.code],
     ['業種', client.industry],
-    ['主管部門', DEPARTMENT_LABEL[client.department]],
+    ['主管部門', client.departments.map((d) => DEPARTMENT_LABEL[d]).join(' / ')],
     ['状態', CLIENT_STATUS_LABEL[client.status]],
     ['担当者', client.contactPerson],
     ['住所', client.address],

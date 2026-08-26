@@ -9,6 +9,8 @@ export interface NavItem {
   adminOnly?: boolean
   /** true の場合は管理者・編集者が編集可能なページ（一般社員は閲覧のみ） */
   editable?: boolean
+  /** ページ内の詳細カテゴリー（タブ絞り込みに使用。未定義の場合はファイル種別で絞り込む） */
+  categories?: string[]
 }
 
 export interface NavCategory {
@@ -26,9 +28,27 @@ export const navCategories: NavCategory[] = [
     items: [
       { label: 'お知らせ', path: '/company/news' },
       { label: 'スケジュール', path: '/company/schedule' },
-      { label: '申請', path: '/company/applications', placeholder: true, editable: true },
-      { label: '給与・評価', path: '/company/career', placeholder: true, editable: true },
-      { label: '理念・社内ルール', path: '/company/rules', placeholder: true, editable: true },
+      {
+        label: '申請',
+        path: '/company/applications',
+        placeholder: true,
+        editable: true,
+        categories: ['勤怠・休暇', '経費・立替', '車両・機材', '人事・資格'],
+      },
+      {
+        label: '給与・評価',
+        path: '/company/career',
+        placeholder: true,
+        editable: true,
+        categories: ['レベル表・評価', '給与・手当', '資格支援', 'キャリアパス'],
+      },
+      {
+        label: '理念・社内ルール',
+        path: '/company/rules',
+        placeholder: true,
+        editable: true,
+        categories: ['理念・文化', '就業', '安全衛生', '情報・IT'],
+      },
       { label: '実績ダッシュボード', path: '/dashboard' },
       { label: 'データ取込', path: '/data-import', adminOnly: true },
       { label: 'ユーザー管理', path: '/admin/users', adminOnly: true },
@@ -49,11 +69,41 @@ export const navCategories: NavCategory[] = [
     label: 'GREEN MAINTENANCE',
     description: '緑地管理業務のマニュアル・資料',
     items: [
-      { label: 'フォーマット', path: '/green-maintenance/format', placeholder: true, editable: true },
-      { label: 'マニュアル', path: '/green-maintenance/manual', placeholder: true, editable: true },
-      { label: '機材・資材', path: '/green-maintenance/equipment', placeholder: true, editable: true },
-      { label: '安全管理', path: '/green-maintenance/safety', placeholder: true, editable: true },
-      { label: '資料', path: '/green-maintenance/proposal', placeholder: true, editable: true },
+      {
+        label: 'フォーマット',
+        path: '/green-maintenance/format',
+        placeholder: true,
+        editable: true,
+        categories: ['報告書', '見積・請求', '提案書'],
+      },
+      {
+        label: 'マニュアル',
+        path: '/green-maintenance/manual',
+        placeholder: true,
+        editable: true,
+        categories: ['新人', '基礎造園工', '現場責任者', '高木', '造園工'],
+      },
+      {
+        label: '機材・資材',
+        path: '/green-maintenance/equipment',
+        placeholder: true,
+        editable: true,
+        categories: ['機械', '車両', '工具・消耗品', '薬剤・肥料'],
+      },
+      {
+        label: '安全管理',
+        path: '/green-maintenance/safety',
+        placeholder: true,
+        editable: true,
+        categories: ['KY・ヒヤリハット', '熱中症・季節対策', '作業別安全', '事故対応・緊急連絡'],
+      },
+      {
+        label: '資料',
+        path: '/green-maintenance/proposal',
+        placeholder: true,
+        editable: true,
+        categories: ['技術・ノウハウ', '病害虫', '樹種・植物', '提案・営業', 'その他'],
+      },
     ],
   },
   {
@@ -61,11 +111,41 @@ export const navCategories: NavCategory[] = [
     label: 'TREE RISK ASSESSMENT',
     description: '樹木リスク評価業務のマニュアル・資料・AP',
     items: [
-      { label: 'フォーマット', path: '/tree-risk/format', placeholder: true, editable: true },
-      { label: 'マニュアル', path: '/tree-risk/manual', placeholder: true, editable: true },
-      { label: '機器', path: '/tree-risk/equipment', placeholder: true, editable: true },
-      { label: '法令・ガイドライン', path: '/tree-risk/regulation', placeholder: true, editable: true },
-      { label: '資料', path: '/tree-risk/proposal', placeholder: true, editable: true },
+      {
+        label: 'フォーマット',
+        path: '/tree-risk/format',
+        placeholder: true,
+        editable: true,
+        categories: ['野帳', 'カルテ', '総評', '見積・請求', 'その他'],
+      },
+      {
+        label: 'マニュアル',
+        path: '/tree-risk/manual',
+        placeholder: true,
+        editable: true,
+        categories: ['基本・共通', '外観診断', '機器診断', '判定・報告'],
+      },
+      {
+        label: '機器',
+        path: '/tree-risk/equipment',
+        placeholder: true,
+        editable: true,
+        categories: ['レジストグラフ', 'アーボソニック3D', 'ピカス'],
+      },
+      {
+        label: '法令・ガイドライン',
+        path: '/tree-risk/regulation',
+        placeholder: true,
+        editable: true,
+        categories: ['国内規格', '国内ガイドライン', '学会・業界基準', '海外規格'],
+      },
+      {
+        label: '資料',
+        path: '/tree-risk/proposal',
+        placeholder: true,
+        editable: true,
+        categories: ['診断事例', '文献・論文', '海外動向', '提案・営業', 'その他'],
+      },
     ],
   },
   {

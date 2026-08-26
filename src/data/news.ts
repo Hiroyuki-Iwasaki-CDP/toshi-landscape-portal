@@ -26,7 +26,7 @@ export const newsItems: NewsItem[] = [
   {
     id: 'n04',
     date: '2026-06-10',
-    category: '全体',
+    category: 'お知らせ',
     title: '資格取得支援制度のご案内',
     body: '樹木医・造園施工管理技士等の資格取得を支援する制度について、給与・評価ページに詳細を掲載しました。',
   },
@@ -47,7 +47,7 @@ export const newsItems: NewsItem[] = [
   {
     id: 'n07',
     date: '2026-05-20',
-    category: '全体',
+    category: 'お知らせ',
     title: '夏季休暇の取得についてのお願い',
     body: '繁忙期を避けた計画的な夏季休暇の取得にご協力ください。申請は申請ページから行えます。',
   },
@@ -68,7 +68,7 @@ export const newsItems: NewsItem[] = [
   {
     id: 'n10',
     date: '2026-04-22',
-    category: '全体',
+    category: 'お知らせ',
     title: '樹木リスク評価業務の法令改正情報を更新しました',
     body: '関連法令のガイドライン改訂に伴い、TREE RISK ASSESSMENT部門の法令・ガイドラインページを更新しました。',
   },
@@ -89,7 +89,7 @@ export const newsItems: NewsItem[] = [
   {
     id: 'n13',
     date: '2026-03-25',
-    category: '全体',
+    category: 'お知らせ',
     title: '景観コンサルティング部門の資料を更新しました',
     body: 'LANDSCAPE CONSULTING部門の資料フォーマットを最新版に更新しました。ご利用ください。',
   },

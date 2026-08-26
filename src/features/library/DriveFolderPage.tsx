@@ -75,6 +75,12 @@ function FileCard({ file, canEdit, onUpdate, onTagClick }: FileCardProps) {
           )}
         </div>
 
+        {file.category && (
+          <span className="mt-1.5 inline-flex w-fit items-center rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-600">
+            {file.category}
+          </span>
+        )}
+
         {editing ? (
           <div className="mt-2 space-y-2">
             <textarea
@@ -170,14 +176,18 @@ interface DriveFolderPageProps {
   path: string
   title: string
   categoryLabel: string
+  /** ページ内の詳細カテゴリー一覧（NavConfig.NavItem.categories）。指定時はこちらでタブ絞り込みする */
+  topicCategories?: string[]
 }
 
-export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageProps) {
+export function DriveFolderPage({ path, title, categoryLabel, topicCategories }: DriveFolderPageProps) {
   const { role } = useAuth()
   const canEdit = role === 'admin' || role === 'editor'
   const [query, setQuery] = useState('')
   const [fileType, setFileType] = useState<DriveFileType | 'すべて'>('すべて')
+  const [topicCategory, setTopicCategory] = useState('すべて')
   const isConnected = Boolean(driveFolderIds[path])
+  const hasTopicCategories = Boolean(topicCategories && topicCategories.length > 0)
 
   const { data: fetchedFiles, loading, error } = useAsyncData(() => fetchDriveFiles(path), [path])
   const [localFiles, setLocalFiles] = useState<DriveFileItem[]>([])
@@ -199,7 +209,11 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase().replace(/^#/, '')
     return localFiles.filter((f) => {
-      if (fileType !== 'すべて' && f.type !== fileType) return false
+      if (hasTopicCategories) {
+        if (topicCategory !== 'すべて' && f.category !== topicCategory) return false
+      } else if (fileType !== 'すべて' && f.type !== fileType) {
+        return false
+      }
       if (!q) return true
       if (f.name.toLowerCase().includes(q)) return true
       if (f.detail?.toLowerCase().includes(q)) return true
@@ -207,7 +221,7 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
       if (f.tags?.some((t) => t.toLowerCase().includes(q))) return true
       return false
     })
-  }, [localFiles, query, fileType])
+  }, [localFiles, query, fileType, topicCategory, hasTopicCategories])
 
   const legendItems = useMemo(() => {
     const seen = new Map<string, { gradient: string; label: string }>()
@@ -240,15 +254,26 @@ export function DriveFolderPage({ path, title, categoryLabel }: DriveFolderPageP
         }
       />
 
-      {availableTypes.length > 1 && (
+      {hasTopicCategories ? (
         <CategoryTabs
           options={[
-            { value: 'すべて' as const, label: 'すべて' },
-            ...availableTypes.map((t) => ({ value: t, label: FILE_TYPE_LABEL[t] })),
+            { value: 'すべて', label: 'すべて' },
+            ...(topicCategories ?? []).map((c) => ({ value: c, label: c })),
           ]}
-          value={fileType}
-          onChange={setFileType}
+          value={topicCategory}
+          onChange={setTopicCategory}
         />
+      ) : (
+        availableTypes.length > 1 && (
+          <CategoryTabs
+            options={[
+              { value: 'すべて' as const, label: 'すべて' },
+              ...availableTypes.map((t) => ({ value: t, label: FILE_TYPE_LABEL[t] })),
+            ]}
+            value={fileType}
+            onChange={setFileType}
+          />
+        )
       )}
 
       <div className="relative">
