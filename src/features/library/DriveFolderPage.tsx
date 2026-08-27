@@ -22,7 +22,7 @@ import { PageHeaderBanner } from '../../components/ui/PageHeaderBanner'
 import { useAuth } from '../../context/AuthContext'
 import { type DriveFileItem, type DriveFileType } from '../../data/driveFiles'
 import { driveFolderIds } from '../../data/driveFolderIds'
-import { fetchDriveFiles } from '../../data/repo'
+import { fetchDriveFiles, updateDriveFileMeta } from '../../data/repo'
 import { useAsyncData } from '../../lib/useAsyncData'
 import { formatDateJa } from '../../lib/format'
 import { getManualImagery } from '../../lib/manualImagery'
@@ -30,19 +30,22 @@ import { getManualImagery } from '../../lib/manualImagery'
 interface FileCardProps {
   file: DriveFileItem
   canEdit: boolean
-  onUpdate: (id: string, patch: { detail: string; tags: string[] }) => void
+  topicCategories?: string[]
+  onUpdate: (id: string, patch: { category?: string; detail: string; tags: string[] }) => void
   onTagClick: (tag: string) => void
 }
 
-function FileCard({ file, canEdit, onUpdate, onTagClick }: FileCardProps) {
+function FileCard({ file, canEdit, topicCategories, onUpdate, onTagClick }: FileCardProps) {
   const { Icon, gradient } = getManualImagery(file.name)
   const [editing, setEditing] = useState(false)
   const [detailDraft, setDetailDraft] = useState(file.detail ?? '')
   const [tagsDraft, setTagsDraft] = useState((file.tags ?? []).join(', '))
+  const [categoryDraft, setCategoryDraft] = useState(file.category ?? '')
 
   function startEdit() {
     setDetailDraft(file.detail ?? '')
     setTagsDraft((file.tags ?? []).join(', '))
+    setCategoryDraft(file.category ?? '')
     setEditing(true)
   }
 
@@ -51,7 +54,7 @@ function FileCard({ file, canEdit, onUpdate, onTagClick }: FileCardProps) {
       .split(/[,、\s]+/)
       .map((t) => t.replace(/^#/, '').trim())
       .filter(Boolean)
-    onUpdate(file.id, { detail: detailDraft.trim(), tags })
+    onUpdate(file.id, { category: categoryDraft || undefined, detail: detailDraft.trim(), tags })
     setEditing(false)
   }
 
@@ -83,6 +86,20 @@ function FileCard({ file, canEdit, onUpdate, onTagClick }: FileCardProps) {
 
         {editing ? (
           <div className="mt-2 space-y-2">
+            {topicCategories && topicCategories.length > 0 && (
+              <select
+                value={categoryDraft}
+                onChange={(e) => setCategoryDraft(e.target.value)}
+                className="w-full rounded-lg border border-brand-200 px-2 py-1.5 text-xs focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              >
+                <option value="">カテゴリー未設定</option>
+                {topicCategories.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            )}
             <textarea
               value={detailDraft}
               onChange={(e) => setDetailDraft(e.target.value)}
@@ -181,7 +198,7 @@ interface DriveFolderPageProps {
 }
 
 export function DriveFolderPage({ path, title, categoryLabel, topicCategories }: DriveFolderPageProps) {
-  const { role } = useAuth()
+  const { role, displayName } = useAuth()
   const canEdit = role === 'admin' || role === 'editor'
   const [query, setQuery] = useState('')
   const [fileType, setFileType] = useState<DriveFileType | 'すべて'>('すべて')
@@ -196,8 +213,13 @@ export function DriveFolderPage({ path, title, categoryLabel, topicCategories }:
     if (fetchedFiles) setLocalFiles(fetchedFiles)
   }, [fetchedFiles])
 
-  function handleUpdate(id: string, patch: { detail: string; tags: string[] }) {
+  function handleUpdate(id: string, patch: { category?: string; detail: string; tags: string[] }) {
     setLocalFiles((prev) => prev.map((f) => (f.id === id ? { ...f, ...patch } : f)))
+    if (isConnected) {
+      updateDriveFileMeta(path, id, patch, displayName).catch((err) => {
+        console.error('drive_file_meta の保存に失敗しました:', err)
+      })
+    }
   }
 
   const availableTypes = useMemo(() => {
@@ -319,7 +341,14 @@ export function DriveFolderPage({ path, title, categoryLabel, topicCategories }:
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {filtered.map((file) => (
-            <FileCard key={file.id} file={file} canEdit={canEdit} onUpdate={handleUpdate} onTagClick={setQuery} />
+            <FileCard
+              key={file.id}
+              file={file}
+              canEdit={canEdit}
+              topicCategories={topicCategories}
+              onUpdate={handleUpdate}
+              onTagClick={setQuery}
+            />
           ))}
         </div>
       )}

@@ -122,30 +122,71 @@ interface DriveApiFile {
   lastModifyingUser?: { displayName?: string }
 }
 
+interface DriveFileMetaRow {
+  file_id: string
+  category: string | null
+  detail: string | null
+  tags: string[] | null
+}
+
+// Googleドライブのファイル自体にはこのアプリ独自の「カテゴリー・詳細説明・タグ」を
+// 保存できないため、drive_file_meta テーブル（file_id紐付け）に保存し、
+// 実データ取得時にここで突き合わせて補完する。テーブルが無い/未接続の場合は空扱いにする。
+async function fetchDriveFileMeta(path: string): Promise<Map<string, DriveFileMetaRow>> {
+  const map = new Map<string, DriveFileMetaRow>()
+  const { data, error } = await mustSupabase().from('drive_file_meta').select('*').eq('path', path)
+  if (error) {
+    console.warn('drive_file_meta の取得に失敗しました（テーブル未作成の可能性）:', error.message)
+    return map
+  }
+  for (const row of data as DriveFileMetaRow[]) map.set(row.file_id, row)
+  return map
+}
+
+export async function updateDriveFileMeta(
+  path: string,
+  fileId: string,
+  patch: { category?: string; detail?: string; tags?: string[] },
+  updatedBy: string,
+): Promise<void> {
+  const { error } = await mustSupabase()
+    .from('drive_file_meta')
+    .upsert({ file_id: fileId, path, ...patch, updated_by: updatedBy, updated_at: new Date().toISOString() })
+  if (error) throw error
+}
+
 export async function fetchDriveFiles(path: string): Promise<DriveFileItem[]> {
   const folderId = driveFolderIds[path]
   if (!folderId || !isSupabaseConfigured) return mockDriveFiles[path] ?? []
 
-  const url = `${supabaseUrl}/functions/v1/drive-list?folderId=${encodeURIComponent(folderId)}`
-  const res = await fetch(url, {
-    headers: {
-      apikey: supabasePublishableKey!,
-      Authorization: `Bearer ${supabasePublishableKey}`,
-    },
-  })
-  const data = await res.json()
-  if (!res.ok) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error))
+  const [driveRes, metaMap] = await Promise.all([
+    fetch(`${supabaseUrl}/functions/v1/drive-list?folderId=${encodeURIComponent(folderId)}`, {
+      headers: {
+        apikey: supabasePublishableKey!,
+        Authorization: `Bearer ${supabasePublishableKey}`,
+      },
+    }),
+    fetchDriveFileMeta(path),
+  ])
+  const data = await driveRes.json()
+  if (!driveRes.ok) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error))
 
-  return (data.files as DriveApiFile[]).map((f) => ({
-    id: f.id,
-    name: f.name,
-    type: MIME_TYPE_MAP[f.mimeType] ?? 'doc',
-    updatedAt: f.modifiedTime,
-    updatedBy: f.lastModifyingUser?.displayName ?? '不明',
-    webViewLink: f.webViewLink,
-    thumbnailLink: f.thumbnailLink,
-    excerpt: f.excerpt,
-  }))
+  return (data.files as DriveApiFile[]).map((f) => {
+    const meta = metaMap.get(f.id)
+    return {
+      id: f.id,
+      name: f.name,
+      type: MIME_TYPE_MAP[f.mimeType] ?? 'doc',
+      updatedAt: f.modifiedTime,
+      updatedBy: f.lastModifyingUser?.displayName ?? '不明',
+      webViewLink: f.webViewLink,
+      thumbnailLink: f.thumbnailLink,
+      excerpt: f.excerpt,
+      category: meta?.category ?? undefined,
+      detail: meta?.detail ?? undefined,
+      tags: meta?.tags ?? undefined,
+    }
+  })
 }
 
 export interface AppSheetData {
