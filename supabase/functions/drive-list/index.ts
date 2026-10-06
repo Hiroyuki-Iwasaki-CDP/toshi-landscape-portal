@@ -6,6 +6,7 @@ import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
 import { createSign } from "node:crypto";
 import { extractText, getDocumentProxy } from "npm:unpdf@0.12.1";
+import { callGoogleApiProxy, getGoogleApiProxyConfig } from "../_shared/google-api-proxy.ts";
 
 function base64url(input: string): string {
   return btoa(input).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -87,6 +88,19 @@ export default {
     const folderId = url.searchParams.get("folderId");
     if (!folderId) {
       return Response.json({ error: "folderId is required" }, { status: 400 });
+    }
+
+    const proxy = getGoogleApiProxyConfig();
+    if (proxy) {
+      try {
+        const response = await callGoogleApiProxy(proxy, "/drive-list", new URLSearchParams({ folderId }));
+        return new Response(response.body, {
+          status: response.status,
+          headers: { "Content-Type": response.headers.get("Content-Type") ?? "application/json" },
+        });
+      } catch (err) {
+        return Response.json({ error: err instanceof Error ? err.message : String(err) }, { status: 502 });
+      }
     }
 
     const rawKey = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_KEY");

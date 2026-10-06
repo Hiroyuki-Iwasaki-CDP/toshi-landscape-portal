@@ -70,6 +70,8 @@ Drive / Sheets の実データ権限は Google Cloud project IAM role ではな�
 
 Drive / Sheets へのアクセス部分を Cloud Run 等へ移し、Google 管理の attached service account を使う。サービスアカウント JSON 鍵と WIF subject token の双方が不要になる。Supabase から Cloud Run を安全に呼ぶ認証境界は別途設計が必要で、公開 endpoint にはしない。
 
+この代替案の実装と検証手順は [`cloud-run-keyless-google-api.md`](./cloud-run-keyless-google-api.md) に記録した。専用共有 secret、対象 ID の allowlist、Google 管理の短期 token を組み合わせ、既存 JSON key 方式は検証完了までフォールバックとして残す。
+
 ### WIF を必須にする場合
 
 Function ごとの OIDC token を自動発行できる実行基盤へ Google API 用バックエンドを移す（GitHub Actions の OIDC は CI 実行中だけなので、常時 API バックエンドの identity には使えない）。その token をこのブランチの共通モジュールへ渡す。

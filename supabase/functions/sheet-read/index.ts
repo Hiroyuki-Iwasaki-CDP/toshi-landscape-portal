@@ -5,6 +5,7 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
 import { createSign } from "node:crypto";
+import { callGoogleApiProxy, getGoogleApiProxyConfig } from "../_shared/google-api-proxy.ts";
 
 function base64url(input: string): string {
   return btoa(input).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -56,6 +57,23 @@ export default {
     const spreadsheetId = url.searchParams.get("spreadsheetId");
     if (!spreadsheetId) {
       return Response.json({ error: "spreadsheetId is required" }, { status: 400 });
+    }
+
+    const proxy = getGoogleApiProxyConfig();
+    if (proxy) {
+      try {
+        const response = await callGoogleApiProxy(
+          proxy,
+          "/sheet-read",
+          new URLSearchParams({ spreadsheetId }),
+        );
+        return new Response(response.body, {
+          status: response.status,
+          headers: { "Content-Type": response.headers.get("Content-Type") ?? "application/json" },
+        });
+      } catch (err) {
+        return Response.json({ error: err instanceof Error ? err.message : String(err) }, { status: 502 });
+      }
     }
 
     const rawKey = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_KEY");
