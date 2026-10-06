@@ -1,0 +1,28 @@
+name: WIF smoke test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  google-api-smoke-test:
+    if: github.ref == 'refs/heads/wif-test'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Exchange GitHub OIDC through Google WIF and check read-only APIs
+        env:
+          GOOGLE_WIF_AUDIENCE: ${{ vars.GOOGLE_WIF_AUDIENCE }}
+          GOOGLE_WIF_SERVICE_ACCOUNT_EMAIL: ${{ vars.GOOGLE_WIF_SERVICE_ACCOUNT_EMAIL }}
+          GOOGLE_DRIVE_FOLDER_ID: ${{ vars.GOOGLE_DRIVE_FOLDER_ID }}
+          GOOGLE_SHEET_ID: ${{ vars.GOOGLE_SHEET_ID }}
+        run: node --experimental-strip-types scripts/wif-smoke-test.mjs
