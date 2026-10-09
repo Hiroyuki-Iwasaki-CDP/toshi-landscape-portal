@@ -1,12 +1,12 @@
 # Supabase Edge Functions → Google WIF 検証結果
 
-調査日: 2026-10-06
+調査日: 2026-10-09（公式資料再確認・個人環境実測）
 
 ## 結論
 
-Google 側の `WIF → サービスアカウント偽装 → Drive / Sheets API` は、JSON サービスアカウント鍵なし、1 時間の短期アクセストークン自動取得で成立する。
+Google 側の `WIF → サービスアカウント偽装 → Drive / Sheets API` は、JSON サービスアカウント鍵なし、1 時間の短期アクセストークン自動取得で成立する。個人 GitHub Actions 環境で2回の独立取得と実API読み取りに成功した（[実測結果](./github-actions-wif-test.md)）。期限を越える連続稼働や長期耐久試験は未実施。
 
-ただし、現在の Supabase hosted Edge Functions には、Function 自身を表し Google STS が検証できる短期 OIDC トークン（ambient workload credential）が提供されていない。したがって、**現在の構成のまま `GOOGLE_SERVICE_ACCOUNT_KEY` を WIF に置き換えることは成立しない**。
+ただし、現在の Supabase hosted Edge Functions の公式ドキュメントでは、Function 自身を表し Google STS が検証できる短期 OIDC トークン（ambient workload credential）の提供・取得方法を確認できない。JWKSは利用者JWTの検証用であり、Function自身のトークン発行ではない。したがって、**公式に確認できる現在の構成のまま `GOOGLE_SERVICE_ACCOUNT_KEY` を直接 WIF に置き換える実装は成立を確認できない**。GitHub Actions側の成功をSupabase側の成功として扱わない。
 
 このブランチには STS とサービスアカウント偽装を行う、秘密鍵を扱わない共通モジュールとモックテストを追加した。ただし安全な subject token の自動取得元がないため、`drive-list` / `sheet-read` には接続していない。静的 subject token を Supabase Secret に保存する実装は、有効期限切れまたは別の長期秘密への置換になるため採用しない。
 
