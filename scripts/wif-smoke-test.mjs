@@ -41,7 +41,7 @@ async function assertGoogleApiAccess(url, accessToken, operation, fetchImpl) {
     headers: { Authorization: `Bearer ${accessToken}` },
   })
   if (!response.ok) throw new Error(`${operation} failed (${response.status})`)
-  await response.json()
+  return response.json()
 }
 
 export async function runWifSmokeTest(env = process.env, fetchImpl = fetch, log = console.log) {
@@ -69,12 +69,15 @@ export async function runWifSmokeTest(env = process.env, fetchImpl = fetch, log 
   driveUrl.searchParams.set('q', `'${driveFolderId}' in parents and trashed = false`)
   driveUrl.searchParams.set('pageSize', '1')
   driveUrl.searchParams.set('fields', 'files(id)')
-  await assertGoogleApiAccess(
+  const driveData = await assertGoogleApiAccess(
     driveUrl,
     googleToken.accessToken,
     'Google Drive API check',
     fetchImpl,
   )
+  if (!Array.isArray(driveData.files) || driveData.files.length === 0) {
+    throw new Error('Google Drive API check returned no accessible test files')
+  }
   log('Google Drive API: OK (file data not logged)')
 
   const sheetsUrl = new URL(
@@ -82,13 +85,31 @@ export async function runWifSmokeTest(env = process.env, fetchImpl = fetch, log 
   )
   sheetsUrl.searchParams.set('includeGridData', 'false')
   sheetsUrl.searchParams.set('fields', 'spreadsheetId')
-  await assertGoogleApiAccess(
+  const sheetData = await assertGoogleApiAccess(
     sheetsUrl,
     googleToken.accessToken,
     'Google Sheets API check',
     fetchImpl,
   )
+  if (sheetData.spreadsheetId !== sheetId) {
+    throw new Error('Google Sheets API check returned an unexpected spreadsheet')
+  }
   log('Google Sheets API: OK (sheet data not logged)')
+
+  if (env.GOOGLE_SHEET_TEST_RANGE || env.GOOGLE_SHEET_EXPECTED_VALUE) {
+    const range = required(env, 'GOOGLE_SHEET_TEST_RANGE')
+    const expected = required(env, 'GOOGLE_SHEET_EXPECTED_VALUE')
+    const values = await assertGoogleApiAccess(
+      `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(range)}`,
+      googleToken.accessToken,
+      'Google Sheets value check',
+      fetchImpl,
+    )
+    if (values.values?.[0]?.[0] !== expected) {
+      throw new Error('Google Sheets test value did not match')
+    }
+    log('Google Sheets test value: OK (value not logged)')
+  }
 }
 
 const invokedAsScript = process.argv[1]

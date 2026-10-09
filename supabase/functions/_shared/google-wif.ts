@@ -38,21 +38,9 @@ function validateConfig(config: GoogleWifConfig): void {
 }
 
 async function readGoogleError(response: Response, operation: string): Promise<Error> {
-  let message = "";
-  try {
-    const body = await response.json() as {
-      error?: string | { message?: string };
-      error_description?: string;
-    };
-    message = typeof body.error === "string"
-      ? body.error_description ?? body.error
-      : body.error?.message ?? "";
-  } catch {
-    // Google occasionally returns an HTML/plain-text proxy error. Do not copy its body because
-    // authentication responses must never be reflected to the caller or logs.
-  }
-  const suffix = message ? `: ${message.slice(0, 300)}` : "";
-  return new Error(`${operation} failed (${response.status})${suffix}`);
+  // Authentication error bodies can contain submitted credential material, even as JSON.
+  // Report the operation and status only; never reflect the upstream response body.
+  return new Error(`${operation} failed (${response.status})`);
 }
 
 /**

@@ -61,3 +61,10 @@ test('does not reflect an unknown Google error body', async () => {
     },
   )
 })
+
+test('does not reflect credentials embedded in a JSON authentication error', async () => {
+  const fakeFetch = async () => Response.json({ error: 'invalid_grant', error_description: 'secret-subject-token' }, { status: 400 })
+  await assert.rejects(getGoogleAccessTokenFromWif('subject-token', config, ['scope'], fakeFetch), {
+    message: 'Google STS token exchange failed (400)',
+  })
+})

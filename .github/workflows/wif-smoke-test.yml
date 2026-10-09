@@ -2,6 +2,12 @@ name: WIF smoke test
 
 on:
   workflow_dispatch:
+  push:
+    branches: [wif-test]
+    paths:
+      - '.github/workflows/wif-smoke-test.yml'
+      - 'scripts/wif-smoke-test.mjs'
+      - 'supabase/functions/_shared/google-wif.ts'
 
 permissions:
   contents: read
@@ -25,4 +31,8 @@ jobs:
           GOOGLE_WIF_SERVICE_ACCOUNT_EMAIL: ${{ vars.GOOGLE_WIF_SERVICE_ACCOUNT_EMAIL }}
           GOOGLE_DRIVE_FOLDER_ID: ${{ vars.GOOGLE_DRIVE_FOLDER_ID }}
           GOOGLE_SHEET_ID: ${{ vars.GOOGLE_SHEET_ID }}
-        run: node --experimental-strip-types scripts/wif-smoke-test.mjs
+          GOOGLE_SHEET_TEST_RANGE: ${{ vars.GOOGLE_SHEET_TEST_RANGE }}
+          GOOGLE_SHEET_EXPECTED_VALUE: ${{ vars.GOOGLE_SHEET_EXPECTED_VALUE }}
+        run: |
+          node --experimental-strip-types scripts/wif-smoke-test.mjs
+          node --experimental-strip-types scripts/wif-smoke-test.mjs

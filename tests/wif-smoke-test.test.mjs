@@ -34,7 +34,7 @@ test('runs the complete GitHub OIDC to Drive and Sheets smoke-test flow without 
       return Response.json({ files: [{ id: 'hidden-file-id' }] })
     }
     if (url.startsWith('https://sheets.googleapis.com/v4/spreadsheets/')) {
-      return Response.json({ spreadsheetId: 'hidden-sheet-id' })
+      return Response.json({ spreadsheetId: 'sheet-id' })
     }
     throw new Error(`Unexpected request: ${url}`)
   }
@@ -63,6 +63,36 @@ test('runs the complete GitHub OIDC to Drive and Sheets smoke-test flow without 
     'hidden-sheet-id',
   ]) {
     assert.doesNotMatch(output, new RegExp(sensitiveValue))
+  }
+})
+
+test('does not mistake an empty Drive listing for successful file access', async () => {
+  let call = 0
+  const fakeFetch = async () => {
+    call += 1
+    if (call === 1) return Response.json({ value: 'oidc' })
+    if (call === 2) return Response.json({ access_token: 'sts' })
+    if (call === 3) return Response.json({ accessToken: 'access', expireTime: '2026-10-09T10:00:00Z' })
+    return Response.json({ files: [] })
+  }
+  await assert.rejects(runWifSmokeTest(env, fakeFetch, () => {}), /no accessible test files/)
+})
+
+test('checks a known cell without exposing values on mismatch', async () => {
+  const testEnv = { ...env, GOOGLE_SHEET_TEST_RANGE: "'WIF test'!B2", GOOGLE_SHEET_EXPECTED_VALUE: 'expected-value' }
+  for (const value of ['expected-value', 'private-wrong-value']) {
+    let call = 0
+    const fakeFetch = async () => {
+      call += 1
+      if (call === 1) return Response.json({ value: 'oidc' })
+      if (call === 2) return Response.json({ access_token: 'sts' })
+      if (call === 3) return Response.json({ accessToken: 'access', expireTime: '2026-10-09T10:00:00Z' })
+      if (call === 4) return Response.json({ files: [{ id: 'file' }] })
+      if (call === 5) return Response.json({ spreadsheetId: env.GOOGLE_SHEET_ID })
+      return Response.json({ values: [[value]] })
+    }
+    if (value === 'expected-value') await runWifSmokeTest(testEnv, fakeFetch, () => {})
+    else await assert.rejects(runWifSmokeTest(testEnv, fakeFetch, () => {}), { message: 'Google Sheets test value did not match' })
   }
 })
 
