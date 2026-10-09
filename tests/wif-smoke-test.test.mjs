@@ -79,7 +79,7 @@ test('does not mistake an empty Drive listing for successful file access', async
 })
 
 test('checks a known cell without exposing values on mismatch', async () => {
-  const testEnv = { ...env, GOOGLE_SHEET_TEST_RANGE: "'WIF test'!B2", GOOGLE_SHEET_EXPECTED_VALUE: 'expected-value' }
+  const testEnv = { ...env, GOOGLE_DRIVE_FILE_ID: 'shared-test-file', GOOGLE_DRIVE_FOLDER_ID: undefined, GOOGLE_SHEET_TEST_RANGE: "'WIF test'!B2", GOOGLE_SHEET_EXPECTED_VALUE: 'expected-value' }
   for (const value of ['expected-value', 'private-wrong-value']) {
     let call = 0
     const fakeFetch = async () => {
@@ -87,7 +87,7 @@ test('checks a known cell without exposing values on mismatch', async () => {
       if (call === 1) return Response.json({ value: 'oidc' })
       if (call === 2) return Response.json({ access_token: 'sts' })
       if (call === 3) return Response.json({ accessToken: 'access', expireTime: '2026-10-09T10:00:00Z' })
-      if (call === 4) return Response.json({ files: [{ id: 'file' }] })
+      if (call === 4) return Response.json({ id: 'shared-test-file' })
       if (call === 5) return Response.json({ spreadsheetId: env.GOOGLE_SHEET_ID })
       return Response.json({ values: [[value]] })
     }

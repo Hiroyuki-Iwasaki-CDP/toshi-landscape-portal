@@ -47,7 +47,8 @@ async function assertGoogleApiAccess(url, accessToken, operation, fetchImpl) {
 export async function runWifSmokeTest(env = process.env, fetchImpl = fetch, log = console.log) {
   const audience = required(env, 'GOOGLE_WIF_AUDIENCE')
   const serviceAccountEmail = required(env, 'GOOGLE_WIF_SERVICE_ACCOUNT_EMAIL')
-  const driveFolderId = required(env, 'GOOGLE_DRIVE_FOLDER_ID')
+  const driveFileId = env.GOOGLE_DRIVE_FILE_ID?.trim()
+  const driveFolderId = driveFileId ? undefined : required(env, 'GOOGLE_DRIVE_FOLDER_ID')
   const sheetId = required(env, 'GOOGLE_SHEET_ID')
 
   const subjectToken = await requestGithubOidcToken(
@@ -65,17 +66,26 @@ export async function runWifSmokeTest(env = process.env, fetchImpl = fetch, log 
   )
   log('Google STS and service-account impersonation: OK (token not logged)')
 
-  const driveUrl = new URL('https://www.googleapis.com/drive/v3/files')
-  driveUrl.searchParams.set('q', `'${driveFolderId}' in parents and trashed = false`)
-  driveUrl.searchParams.set('pageSize', '1')
-  driveUrl.searchParams.set('fields', 'files(id)')
+  const driveUrl = new URL(driveFileId
+    ? `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(driveFileId)}`
+    : 'https://www.googleapis.com/drive/v3/files')
+  if (driveFileId) {
+    driveUrl.searchParams.set('fields', 'id')
+  } else {
+    driveUrl.searchParams.set('q', `'${driveFolderId}' in parents and trashed = false`)
+    driveUrl.searchParams.set('pageSize', '1')
+    driveUrl.searchParams.set('fields', 'files(id)')
+  }
   const driveData = await assertGoogleApiAccess(
     driveUrl,
     googleToken.accessToken,
     'Google Drive API check',
     fetchImpl,
   )
-  if (!Array.isArray(driveData.files) || driveData.files.length === 0) {
+  if (driveFileId && driveData.id !== driveFileId) {
+    throw new Error('Google Drive API check returned an unexpected file')
+  }
+  if (!driveFileId && (!Array.isArray(driveData.files) || driveData.files.length === 0)) {
     throw new Error('Google Drive API check returned no accessible test files')
   }
   log('Google Drive API: OK (file data not logged)')
