@@ -1,0 +1,38 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@deno/oidc@0.1.0": "0.1.0"
+  },
+  "jsr": {
+    "@deno/oidc@0.1.0": {
+      "integrity": "61e5668bc3e5e5978e6a4cc35f990f965ece437fb6e1dc6cda10732be85c919f"
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@deno/oidc@0.1.0",
+      "npm:unpdf@1.8.1"
+    ],
+    "packageJson": {
+      "dependencies": [
+        "npm:@supabase/supabase-js@^2.112.0",
+        "npm:@tailwindcss/vite@^4.3.2",
+        "npm:@types/node@^24.13.2",
+        "npm:@types/react-dom@^19.2.3",
+        "npm:@types/react@^19.2.17",
+        "npm:@vitejs/plugin-react@^6.0.3",
+        "npm:autoprefixer@^10.5.2",
+        "npm:lucide-react@^1.23.0",
+        "npm:oxlint@^1.71.0",
+        "npm:postcss@^8.5.16",
+        "npm:react-dom@^19.2.7",
+        "npm:react-router-dom@^7.18.1",
+        "npm:react@^19.2.7",
+        "npm:recharts@^3.9.2",
+        "npm:tailwindcss@^4.3.2",
+        "npm:typescript@~6.0.2",
+        "npm:vite@^8.1.1"
+      ]
+    }
+  }
+}

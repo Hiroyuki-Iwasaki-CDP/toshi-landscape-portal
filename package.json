@@ -9,6 +9,7 @@
     "lint": "oxlint",
     "test:google-proxy": "npm --prefix cloud-run/google-api-proxy test",
     "test:wif": "node --experimental-strip-types --test tests/*wif*.test.mjs",
+    "test:deno-wif": "node --experimental-strip-types --test tests/deno-wif.test.mjs",
     "preview": "vite preview",
     "seed:supabase": "node scripts/seed-supabase.mjs"
   },

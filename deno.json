@@ -1,0 +1,10 @@
+{
+  "imports": {
+    "@deno/oidc": "jsr:@deno/oidc@0.1.0",
+    "unpdf": "npm:unpdf@1.8.1"
+  },
+  "tasks": {
+    "check:google-proxy": "deno check deno/google-api-proxy/main.ts",
+    "serve:google-proxy": "deno run --allow-env --allow-net deno/google-api-proxy/main.ts"
+  }
+}

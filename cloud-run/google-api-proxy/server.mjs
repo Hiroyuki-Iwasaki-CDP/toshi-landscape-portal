@@ -44,14 +44,8 @@ function json(data, status = 200) {
 }
 
 async function googleError(response, operation) {
-  let message = ''
-  try {
-    const body = await response.json()
-    message = body?.error?.message ?? body?.error_description ?? ''
-  } catch {
-    // Never reflect unknown authentication response bodies.
-  }
-  return new Error(`${operation} failed (${response.status})${message ? `: ${String(message).slice(0, 300)}` : ''}`)
+  // Upstream error bodies may contain credentials or file data.
+  return new Error(`${operation} failed (${response.status})`)
 }
 
 export function createGoogleTokenProvider({ fetchImpl = fetch, serviceAccountEmail }) {
@@ -102,8 +96,12 @@ async function getExcerpt(fileId, token, fetchImpl) {
   }
 }
 
-export function createHandler(config, { fetchImpl = fetch } = {}) {
-  const getAccessToken = createGoogleTokenProvider({
+/**
+ * @param {ReturnType<typeof configFromEnv>} config
+ * @param {{fetchImpl?: typeof fetch, getAccessToken?: (scopes: string[]) => Promise<string>}} [options]
+ */
+export function createHandler(config, { fetchImpl = fetch, getAccessToken: suppliedTokenProvider } = {}) {
+  const getAccessToken = suppliedTokenProvider ?? createGoogleTokenProvider({
     fetchImpl,
     serviceAccountEmail: config.serviceAccountEmail,
   })

@@ -1,5 +1,7 @@
 # Cloud Run 鍵レス Google API プロキシ
 
+状態（2026-10-09）: 追加費用ゼロというユーザーの条件により、このCloud Run案は採用保留。新規リソースの作成・公開は行わない。代わりに [Deno Deploy FreeのWIF検証案](./zero-additional-cost-wif.md) を参照する。以下の構成・IDは以前の案であり、デプロイ済み環境を表さない。
+
 ## 目的
 
 Supabase hosted Edge Functions に Google WIF 用の ambient workload token がない制約を回避し、Google サービスアカウント JSON 鍵を廃止する。

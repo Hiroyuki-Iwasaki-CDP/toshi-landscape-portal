@@ -4,6 +4,8 @@
 
 ## 結論
 
+2026-10-09追記: 追加費用ゼロを必須条件とするため、Cloud Run案は採用せず保留とする。Deno Deploy Freeのruntime OIDCを使う候補とローカル試作を [追加費用なしの検証案](./zero-additional-cost-wif.md) に記録した。Deno実環境ではまだ未検証である。
+
 Google 側の `WIF → サービスアカウント偽装 → Drive / Sheets API` は、JSON サービスアカウント鍵なし、1 時間の短期アクセストークン自動取得で成立する。個人 GitHub Actions 環境で2回の独立取得と実API読み取りに成功した（[実測結果](./github-actions-wif-test.md)）。期限を越える連続稼働や長期耐久試験は未実施。
 
 ただし、現在の Supabase hosted Edge Functions の公式ドキュメントでは、Function 自身を表し Google STS が検証できる短期 OIDC トークン（ambient workload credential）の提供・取得方法を確認できない。JWKSは利用者JWTの検証用であり、Function自身のトークン発行ではない。したがって、**公式に確認できる現在の構成のまま `GOOGLE_SERVICE_ACCOUNT_KEY` を直接 WIF に置き換える実装は成立を確認できない**。GitHub Actions側の成功をSupabase側の成功として扱わない。
