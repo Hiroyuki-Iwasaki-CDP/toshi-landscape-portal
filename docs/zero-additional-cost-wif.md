@@ -38,6 +38,12 @@ Supabase公式ではFreeは課金なし、ProのSpend CapはEdge Function Invoca
 
 ## 用意した実装
 
+### 個人管理画面での確認（2026-10-11）
+
+ログイン済みorganization `halh0328` のBilling画面で、Free Plan / $0 per month、未verificationのため通常Free枠の1%であることを確認した。表示上限はHTTP requests 10k、CPU 0.1h、Memory 1.5GiB·h、Outbound 0.2GiB。アプリは0/5。カード登録や有料変更は実施していない。
+
+組織作成ボタンはslug使用済みエラーになったが、Homeに戻ると同slugの管理画面にアクセスできたため、重複組織は作成していない。GitHubアカウント連携とDeno Deploy GitHub Appのインストールはユーザー操作で完了した。初回の設定確認ではAll repositoriesが選択されていた。アプリ権限はmetadata/PRの読み取り、actions/administration/code/commit statuses/deployments/workflowsの読み書き。ユーザー承認を得て対象をtoshi-landscape-portalだけへ絞るよう案内し、ユーザーから保存成功の報告があり、setup_action=updateのInstall Success画面も確認した。ただし保存後の対象一覧は画面取得不調のため再確認できていない。Denoアプリ作成・runtime OIDCの実測は未実施。
+
 - `deno/google-api-proxy/main.ts`: Deno Deploy runtime OIDCを使用する起動点。OIDCが使えない環境では起動を拒否する。
 - `deno/google-api-proxy/google-token.ts`: OIDC -> STS -> read-only scopeのGoogle token。期限5分前から再取得し、同じscopeの同時取得をまとめる。エラー本文を返さない。
 - `deno.json`: `@deno/oidc@0.1.0` と既存実装と同じ `unpdf@1.8.1` を固定。
@@ -45,6 +51,14 @@ Supabase公式ではFreeは課金なし、ProのSpend CapはEdge Function Invoca
 - `tests/deno-wif.test.mjs`: 模擬時計で更新を確認。同時取得、失敗後再試行、無効期限、認証拒否、allowlist、Sheetsレスポンス互換性を検証。
 
 `GOOGLE_SERVICE_ACCOUNT_KEY` を読む既存本番経路は変更しない。実環境での比較が終わった後、検証用Supabaseの `GOOGLE_API_PROXY_URL` / `GOOGLE_API_PROXY_SECRET` で切り替える。
+
+### 検証アプリ作成（2026-10-11）
+
+ユーザーがFree Regionsで `toshi-wif-test` を作成した。起動設定はDynamic / `deno/google-api-proxy/main.ts`。初回ビルド `vq9t0xg49vaw` は既定ブランチmasterのcommit `6eada55342561dda410f8f0c88f34ac365042c6d` を使用し、Entrypoint not foundで失敗。画面上にpreview URLなし、timelineなしを確認した。停止操作中にCancelがRetryへ切り替わり、masterの再試行 `1bch1tvm0c2n` が発生したため、それ以上再試行しない。wif-testの選択と検証専用環境変数、GoogleのDeno用信頼設定は未完了。WIF実機成功とは扱わない。
+
+その後、ブランチ選択に伴ってwif-testのbuild `swtrph6w1bwp`（commit `d70f0f6a4a1b2c6dab1c71bd642f0fed10b7566d`）が開始した。npm installは成功したが、entrypointの依存解決でunpdfがnode_modulesにないため失敗。preview URL/timelineなし。Google認証や実行時OIDCには到達していない。ブランチ選択をビルド非実行の操作として案内してはいけない。
+
+ローカルでDenoのnpm解決を `nodeModulesDir: none` に明示し、deploy.installをentrypoint対象の `deno install --frozen` に変更した。また共有ハンドラのBufferをnode:bufferから明示importした。Deno lockfileにnpmのintegrityを記録し、Deno型チェック、Nodeの17件、Denoでの6件のモックテストが成功。git管理ファイルのみを一時ディレクトリへコピーし、node_modulesがない状態でもfrozen install/cacheとDenoの6件が成功した。レジストリキャッシュは再利用したため、ネットワークを含む完全な空キャッシュの再現試験とは区別する。これらは未push・未デプロイであり、実行時OIDCとGoogleの信頼設定・環境変数は未検証。リンク済みアプリへのpushはビルドを誘発しうるため、準備が終わるまでpush・Retryしない。
 
 ## 環境変数（実値はリポジトリに保存しない）
 
@@ -88,6 +102,8 @@ assertion.context_id == '<実測した検証CONTEXT_ID>'
 
 ## 公式資料
 
+- [Denoのnpm解決モード・Buffer互換性](https://docs.deno.com/runtime/fundamentals/node/)
+- [Deno entrypoint依存インストール](https://docs.deno.com/runtime/reference/cli/install/)
 - [Deno runtime OIDC](https://docs.deno.com/deploy/reference/oidc/)
 - [Deno Cloud Connections](https://docs.deno.com/deploy/reference/cloud_connections/)
 - [Deno料金](https://deno.com/deploy/pricing)

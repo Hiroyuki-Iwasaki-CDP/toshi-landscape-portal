@@ -1,4 +1,5 @@
 import { timingSafeEqual } from 'node:crypto'
+import { Buffer } from 'node:buffer'
 import { createServer } from 'node:http'
 import { extractText, getDocumentProxy } from 'unpdf'
 
