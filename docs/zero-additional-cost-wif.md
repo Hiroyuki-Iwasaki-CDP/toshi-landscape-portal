@@ -62,15 +62,55 @@ Supabase公式ではFreeは課金なし、ProのSpend CapはEdge Function Invoca
 
 ## 環境変数（実値はリポジトリに保存しない）
 
+2026-10-11追記: Deno Cloud Connectionsを保存したcontextでは、公式仕様の `GCP_WORKLOAD_PROVIDER_ID` / `GCP_SERVICE_ACCOUNT_EMAIL` も読み取る。provider resource名からcanonical audienceを生成する。手動の `GOOGLE_WIF_*` と併用する場合は一致を必須とし、食い違い・空値・不正形式では起動を拒否する。`GOOGLE_APPLICATION_CREDENTIALS` のファイルやJSON秘密鍵へフォールバックしない。設定値そのものをエラーに含めない。Denoの型チェックと9件のモックテストは成功。クラウドへのpush・デプロイは未実施。
+
 - `PROXY_SHARED_SECRET`: 十分なランダム性を持つ32文字以上の専用シークレット。ブラウザへ渡さない。
 - `GOOGLE_WIF_AUDIENCE`: `//iam.googleapis.com/projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>`。
 - `GOOGLE_WIF_SERVICE_ACCOUNT_EMAIL`: 検証専用サービスアカウント。
 - `ALLOWED_DRIVE_FOLDER_IDS`: 個人検証用の閲覧共有済みフォルダのID。対象を限定する。
 - `ALLOWED_SPREADSHEET_IDS`: 個人検証用シートID。
 
+### CLI認証の検証と後片付け（2026-10-11）
+
+ユーザーが公式CLIのブラウザ承認を一時的に許可し、`apps get --json` でアプリの固定IDを取得した。組織ID・Preview context IDは未取得。CLIはkeychainへの保存に失敗し、認証情報はそのプロセス限りで、処理終了した。ただしこれはサーバー側の失効を意味しない。
+
+CLIソースが案内する `/account/tokens` は現行consoleで404となった。実際のユーザーメニューのAccount settings (`/account`) にはPersonal access tokensとSessionsがあり、今回のCLI認証はPATではなくdeviceセッションとして表示された。ユーザーが該当deviceセッションをRevokeした後、device行が消え、既存webセッション3件だけが残ることを読み取りで確認した。追加の認証やPAT作成は行わない。請求設定・プラン・本番環境は変更していない。
+
+GoogleのDeno用pool/provider作成ウィザードとDenoのPreview-only Cloud Connectionは未保存のまま。その後、取得済みの固定 `app_id` の一致条件をslug/context名の条件へ追加し、画面の値とウィザード前段から戻った後の値を確認した。poolは `deno-deploy-test`、providerは `toshi-portal`、issuerは `https://oidc.deno.com`、default audience、JWKSアップロードなし。まだ保存・SA権限付与は実施していない。
+
+この段階では固定app IDで別アプリ・同名再作成を拒否し、Preview contextは名前で制限する。これは下記のorg/app/context全固定IDの最終案とは区別する。pool/providerの保存だけではDrive/Sheetsのアクセス権は付与されない。Google側の信頼リソースの保存と、SA上のWorkload Identity User付与は別の承認操作として扱い、SA権限付与・本番利用の前に固定IDの残りの確認方針を決める。
+
+その後、ユーザーが上記内容を確認して問題なければ保存することを明示承認したため、表示中のproject・属性マッピング・4条件を再照合して保存ボタンを1回押した。作成中表示の後、URLとウィンドウタイトルが `deno-deploy-test` のプール詳細へ移動した。ただし本文の画面取得は旧作成画面のままで、その後の詳細URL再読み込みでは本文を取得できなかった。したがって保存リクエストの実行・詳細URLへの遷移までは確認済みだが、保存済みproviderの状態・条件のread-backは未完了。保存を再送しない。SA権限付与・Deno接続保存・push・デプロイは実施していない。次はプール詳細を読み取り確認し、保存値が一致するまで権限付与へ進まない。
+
+ユーザーが詳細画面の表示を報告した後、読み取りが復旧した。`deno-deploy-test` のID・説明・有効状態、およびDeno Deploy / OIDC / 有効のprovider行を確認し、保存の成立を確認できた。provider編集ボタンの操作は画面が変化せず、座標操作も画面操作エラーとなったため、provider内部のissuer・mapping・conditionの再読込照合はまだ未完了。プールとproviderが有効であることだけをGoogle API接続成功と扱わない。
+
+その後、provider編集画面がすでに開いていることを確認し、保存済みissuer `https://oidc.deno.com`、default audience、`google.subject = assertion.sub`、`attribute.full_slug = assertion.org_slug + "/" + assertion.app_slug` と、固定app ID・org slug・app slug・Previewの4条件のread-backが完了した。再保存はしていない。SA権限付与とDeno Cloud Connection保存はまだ行っていない。
+
+次の個人限定の接続検証では、この固定app IDとPreview限定のcondition、およびSA上の単一subjectへのWorkload Identity User付与を用いる。Deno公式Cloud Connectionsも環境単位のsubject bindingを案内している。固定app IDにより同名別アプリ・同名再作成は拒否する。固定org ID/context IDは未取得であり、全UUID固定の下記本番向け案を達成済みとは扱わない。SAに既に閲覧共有された個人テスト用シートのみを対象とし、業務データや本番への承認とは区別する。権限付与は別途その時点でのユーザー承認を必須とする。
+
+Deno接続画面でPreviewのみ選択（Production/Build/Local/Allは未選択）、provider IDとSAメールの入力値をread-backした。権限付与前にTest connectionを1回実行したが、取得できた画面ではTesting connectionのままで、成功・拒否の結果は未確認。Create connectionは押していない。Googleのサービスアカウント一覧へ移動したところ、ブラウザURLは一覧へ変わったが本文の取得が旧プール画面で止まり、再読み込み1回でも取得状態は更新しなかった。古い本文の要素でIAM操作を進めず停止。SA権限の変更は行っていない。ローカルNode20件、Deno9件、Deno型チェックを再実行して成功した。
+
+ユーザーによる画面更新後、サービスアカウント一覧の取得が復旧し、検証専用 `toshi-portal-wif-reader` が有効・キーなしであることを再確認した。他の鍵付きアカウントは変更していない。検証専用SAの詳細リンクへ移動したが、タイトルとURLだけが詳細へ変わり、本文は旧一覧のままになった。詳細URLの再読み込み1回後は本文を取得できなくなり、Chromeの表示復帰を試みる操作もタイムアウトした。IAM権限の変更・新しいキー作成は行っていない。詳細本文が読めるまで既存のIAM状態を推測して権限付与しない。
+
+その後、アクセス権を持つプリンシパルの一覧が読めるようになった。既存の継承OwnerとGitHub Actions用Workload Identity Userを確認し、Denoのbindingはまだないことを確認した。ユーザーが入力した単一principal `principal://iam.googleapis.com/projects/972004424723/locations/global/workloadIdentityPools/deno-deploy-test/subject/deployment:halh0328/toshi-wif-test/preview`、対象SA、一つだけのWorkload Identity Userロールを照合した。短期トークン取得と共有済みテストシート閲覧が可能になることを説明し、ユーザーの明示承認後に保存を1回実行した。取得できた状態は保存・キャンセルがdisabledの処理中表示であり、一覧への反映はまだ確認できていない。保存を再送せず、結果を確認してからDenoの接続試験へ進む。
+
+2026-10-13再開時、対象SAのアクセス一覧に上記Deno Preview単一principalとWorkload Identity User（継承なし）が表示され、既存GitHub bindingも残っていることを確認した。これによりGoogle側の権限保存のread-backが完了した。保存の再実行はしていない。Deno側はPreviewのみと入力済みprovider/SAを維持していたが、前回のTesting connection表示が残っていたため画面の再読み込みを1回試みた。新しい接続テスト結果とCloud Connection保存はまだ確認できていない。Google側のIAM保存をDeno実行時認証やDrive/Sheets実機成功と同一視しない。
+
+同日、ユーザーの再開合図後にDeno画面を再取得すると、再読み込みでフォームは初期状態（All・provider/SA空欄）になっていた。確認済みprovider/SAを再入力してread-backした。All選択欄は操作後も開いたことを確認できず、Preview限定を復元できるまでTest connection / Create connectionを押さず停止した。ユーザーにAll選択肢の表示を依頼した。Nodeの関連20テスト、既存キャッシュを指定したDeno frozen型チェック、git diff --checkは成功。これらはローカル検証であり、Denoからの実認証成功を示すものではない。
+
+続いてユーザーがAllの選択肢を開いた後、Previewだけを選択してread-backした（All/Production/Build/Localは0、Previewは1）。同じprovider/SAでTest connectionを1回実行し、`Cloud Connection Secure` / `All security tests passed. Your cloud connection is properly configured.` を確認した。内訳は選択contextの認証成功1、他contextの拒否3、同一org内の他app拒否4、他orgのapp拒否4がすべて合格表示だった。これはDeno Cloud ConnectionsのGoogle認証・認可境界テストの成功であり、Drive/Sheets取得やSupabase経由の実機検証はまだ未完了。Create connectionは未実行で、Preview限定の接続保存にはその時点のユーザー承認が必要。画像取得は古いAllメニュー表示のままで本文read-backと食い違っていたため、承認用の正しい結果画像を取得するためにユーザーへStep 4の表示を依頼した。
+
+ユーザーがPreview限定のCreate connection保存を承認した次の取得では、すでにアプリ設定画面に戻っており、Cloud Connections一覧にGCP・対象SA・Previewが表示されていた。保存済み状態をread-backしたが、この取得時にこちらからCreate connectionをクリックしてはいない。重複作成・権限再付与はしない。Environment Variablesはまだ0件。実行entrypointは正しい一方、Install commandはまだnpm installだったため、確認済みのDeno frozen entrypoint installへの変更を準備している。実稼働リビジョン、Drive/Sheets取得、Supabase比較、追加費用なしの長期運用条件は未検証。
+
+ユーザーがApp Configuration編集画面を開いた後、Install commandだけを `deno install --frozen --entrypoint deno/google-api-proxy/main.ts` に変更してSaveを1回実行し、設定一覧の同じコマンドをread-backした。Dynamic entrypoint、Build/Pre-deploy空欄、無料枠内の既存メモリ・timeoutは維持した。続いてEnvironment Variables and Secretsフォームを開き、`PROXY_SHARED_SECRET`・Secret・Previewのみ（他contextは0）を準備したが、値はまだ空欄でDone/Saveは未実行。秘密値をDeno個人検証アプリに保存する操作の直前承認と、承認用画像の取得を待っている。Googleの秘密鍵や既存Supabaseのsecretを使い回さない。
+
+その後ユーザーは、専用ランダムシークレットをDeno個人検証アプリのPreview Secretに入力・保存する操作を明示承認した。256bitのランダム値をローカル一時ディレクトリ（0700）内のファイル（0600）へ生成し、値を出力せずSecret欄へ入力した。入力値一致を真偽値だけで確認し、Done後の`PROXY_SHARED_SECRET`・Previewの準備行を確認した。続いて個人テスト用シート1件の`ALLOWED_SPREADSHEET_IDS`（Plain Text、Previewのみ）を追加しているが、Value欄の入力が反映されたことはまだ確認できず、ユーザーにIDの手入力を依頼した。環境変数全体のSave完了は未確認。秘密値をGitの作業ツリーやチャットへ出していない。
+
+実機取得に向け、`scripts/proxy-smoke-test.mjs` と4件のモックテストを追加した。HTTPS originのみ許可し、redirectを追わず、1リクエスト30秒・合計5GETでhealth、認証なし拒否、誤ったsecret拒否、allowlist外拒否、テストシートのレスポンス形式と任意の既知マーカーを検査する。秘密値はローカルファイルから読み、返却データ・未知のエラー本文はログに出さない。シートのrecords内マーカーを確認するもので、B2のセル座標を直接検証したとは扱わない。ローカル関連テスト24件が成功。実ネットワークでのproxy smoke testは未実施。
+
 ## Google側の認可境界
 
-アカウント作成後に取得したDenoの `org_id` / `app_id` / `context_id` を使い、専用poolのprovider conditionですべて一致させる。可変のslugだけで認可しない。プレビュー・任意のGitブランチに本番データアクセスを許さない。
+本番向けの追加強化案として、実測したDenoの `org_id` / `app_id` / `context_id` を使い、専用poolのprovider conditionですべて一致させる。以下は未適用の案であり、現在保存済みの公式Cloud Connections互換mappingとは異なる。採用時は公式必須mappingを維持しつつconditionへ固定ID制約を追加する方式も検討する。可変のslugだけで認可しない。プレビュー・任意のGitブランチに本番データアクセスを許さない。
 
 ```text
 google.subject = assertion.org_id + '/' + assertion.app_id + '/' + assertion.context_id

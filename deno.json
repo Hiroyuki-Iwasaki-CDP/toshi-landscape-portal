@@ -9,7 +9,9 @@
     "runtime": {
       "type": "dynamic",
       "entrypoint": "deno/google-api-proxy/main.ts"
-    }
+    },
+    "org": "halh0328",
+    "app": "toshi-wif-test"
   },
   "tasks": {
     "check:google-proxy": "deno check deno/google-api-proxy/main.ts",

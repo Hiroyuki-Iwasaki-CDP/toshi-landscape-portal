@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createDenoWifTokenProvider } from '../deno/google-api-proxy/google-token.ts'
 import { createHandler } from '../cloud-run/google-api-proxy/server.mjs'
+import { wifConfigFromEnv } from '../deno/google-api-proxy/config.ts'
 
 const config = {
   audience: '//iam.googleapis.com/projects/123456789/locations/global/workloadIdentityPools/deno-deploy/providers/portal',
@@ -12,6 +13,28 @@ const proxyConfig = {
   allowedDriveFolderIds: new Set(['folder']), allowedSpreadsheetIds: new Set(['sheet']),
 }
 const driveScope = 'https://www.googleapis.com/auth/drive.readonly'
+
+test('accepts explicit WIF configuration and Deno Cloud Connections variables', () => {
+  const explicit = { GOOGLE_WIF_AUDIENCE: config.audience, GOOGLE_WIF_SERVICE_ACCOUNT_EMAIL: config.serviceAccountEmail }
+  const cloud = { GCP_WORKLOAD_PROVIDER_ID: config.audience.slice('//iam.googleapis.com/'.length), GCP_SERVICE_ACCOUNT_EMAIL: config.serviceAccountEmail }
+  assert.deepEqual(wifConfigFromEnv(explicit), config)
+  assert.deepEqual(wifConfigFromEnv(cloud), config)
+  assert.deepEqual(wifConfigFromEnv({ ...explicit, ...cloud }), config)
+})
+
+test('rejects conflicting connection values without including values in errors', () => {
+  const cloud = { GCP_WORKLOAD_PROVIDER_ID: config.audience.slice('//iam.googleapis.com/'.length), GCP_SERVICE_ACCOUNT_EMAIL: config.serviceAccountEmail }
+  assert.throws(() => wifConfigFromEnv({ ...cloud, GOOGLE_WIF_AUDIENCE: 'private-value' }), { message: 'Conflicting Google WIF provider configuration' })
+  assert.throws(() => wifConfigFromEnv({ ...cloud, GOOGLE_WIF_SERVICE_ACCOUNT_EMAIL: 'private-value' }), { message: 'Conflicting Google WIF service account configuration' })
+})
+
+test('requires valid workload configuration and never falls back to credential files or keys', () => {
+  assert.throws(() => wifConfigFromEnv({ GOOGLE_APPLICATION_CREDENTIALS: '/not-read.json', GOOGLE_SERVICE_ACCOUNT_KEY: 'not-read' }), /canonical Google WIF/)
+  for (const provider of ['', '../other', 'https://iam.googleapis.com/projects/123', config.audience]) {
+    assert.throws(() => wifConfigFromEnv({ GCP_WORKLOAD_PROVIDER_ID: provider }), /GCP_WORKLOAD_PROVIDER_ID/)
+  }
+  assert.throws(() => wifConfigFromEnv({ GOOGLE_WIF_AUDIENCE: config.audience }), /service account email/)
+})
 
 function fixture() {
   let clock = Date.parse('2026-10-09T00:00:00Z')
