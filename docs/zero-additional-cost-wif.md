@@ -108,6 +108,8 @@ Deno接続画面でPreviewのみ選択（Production/Build/Local/Allは未選択�
 
 実機取得に向け、`scripts/proxy-smoke-test.mjs` と4件のモックテストを追加した。HTTPS originのみ許可し、redirectを追わず、1リクエスト30秒・合計5GETでhealth、認証なし拒否、誤ったsecret拒否、allowlist外拒否、テストシートのレスポンス形式と任意の既知マーカーを検査する。秘密値はローカルファイルから読み、返却データ・未知のエラー本文はログに出さない。シートのrecords内マーカーを確認するもので、B2のセル座標を直接検証したとは扱わない。ローカル関連テスト24件が成功。実ネットワークでのproxy smoke testは未実施。
 
+ユーザーのシートID入力後、Valueがテスト用IDと完全一致し、Plain Text・Previewのみであることを確認してDoneを実行した。PROXY_SHARED_SECRETとALLOWED_SPREADSHEET_IDSの2行ともPreviewであることを確認してSaveを1回実行した。取得表示が更新されず、ユーザーへ現在のフォーム状態に応じた保存/一覧復帰の確認を依頼した。その後、設定一覧のALLOWED_SPREADSHEET_IDSの正しいID・Previewと、PROXY_SHARED_SECRETのSecretアイコン・Previewをread-backし、環境変数保存の成立を確認した。Denoビルド設定とGCP Preview接続も維持されている。Driveフォルダの共有・allowlist設定はまだ行っておらず、最初の実機試験は共有済み個人テストシートのみを使う。
+
 ## Google側の認可境界
 
 本番向けの追加強化案として、実測したDenoの `org_id` / `app_id` / `context_id` を使い、専用poolのprovider conditionですべて一致させる。以下は未適用の案であり、現在保存済みの公式Cloud Connections互換mappingとは異なる。採用時は公式必須mappingを維持しつつconditionへ固定ID制約を追加する方式も検討する。可変のslugだけで認可しない。プレビュー・任意のGitブランチに本番データアクセスを許さない。
